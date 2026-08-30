@@ -199,6 +199,8 @@ def main():
         if n == 1:
             bands.append({
                 'name': names[0],
+                'location': '',
+                'date': '',
                 'source_file': vf.name,
                 'start': '00:00:00.000',
                 'end': fmt(dur),
@@ -218,6 +220,8 @@ def main():
         for i, name in enumerate(names):
             bands.append({
                 'name': name,
+                'location': '',
+                'date': '',
                 'source_file': vf.name,
                 'start': fmt(bounds[i]),
                 'end': fmt(bounds[i + 1]),
@@ -227,11 +231,13 @@ def main():
 
     config = {
         '_note': (
-            'Review name/start/end for each band, remove _review flags when satisfied. '
-            'Then: python process.py config.json'
+            'Fill in location/date/event. Review name/start/end for each band, '
+            'remove _review flags when satisfied. '
+            'Copy this file to the project dir as config.json, then: make process VIDEO_DIR=...'
         ),
-        'input_dir': str(video_dir),
-        'output_dir': str(video_dir / 'output'),
+        'input_dir': '/videos',
+        'output_dir': '/videos/output',
+        'event': '',
         'title_duration_seconds': 4,
         'title_font_size': 72,
         'title_font_color': 'white',

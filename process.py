@@ -377,31 +377,66 @@ def process_band(band, config, output_dir, tmp_dir, font_path):
     return True
 
 
+def validate_config(config, config_path):
+    errors = []
+    for key in ('input_dir', 'output_dir', 'bands'):
+        if key not in config:
+            errors.append(f"missing required key: '{key}'")
+    for i, band in enumerate(config.get('bands', [])):
+        prefix = f"bands[{i}] ({band.get('name', '?')})"
+        if 'name' not in band:
+            errors.append(f"{prefix}: missing 'name'")
+        if 'output' not in band:
+            errors.append(f"{prefix}: missing 'output'")
+        has_single = 'source_file' in band
+        has_multi = 'segments' in band
+        if not has_single and not has_multi:
+            errors.append(f"{prefix}: needs 'source_file' or 'segments'")
+        if has_single and has_multi:
+            errors.append(f"{prefix}: has both 'source_file' and 'segments' — use one")
+        if has_single:
+            for ts_key in ('start', 'end'):
+                if ts_key not in band:
+                    errors.append(f"{prefix}: missing '{ts_key}'")
+        if has_multi:
+            for j, seg in enumerate(band.get('segments', [])):
+                for field in ('source_file', 'start', 'end'):
+                    if field not in seg:
+                        errors.append(f"{prefix} segments[{j}]: missing '{field}'")
+    if errors:
+        print(f"{C.RED}Config errors in {config_path}:{C.RESET}")
+        for e in errors:
+            print(f"  {C.RED}• {e}{C.RESET}")
+        sys.exit(1)
+
+
 def main():
     ap = argparse.ArgumentParser(description='Cut WGI segments and prepend title cards')
     ap.add_argument('config')
     ap.add_argument('--dry-run', action='store_true', help='Show plan without processing')
     ap.add_argument('--only', metavar='NAME',
                     help='Process only bands whose name contains NAME (case-insensitive)')
+    ap.add_argument('--skip-existing', action='store_true',
+                    help='Skip bands whose output file already exists')
     args = ap.parse_args()
 
     with open(args.config, encoding='utf-8') as f:
         config = json.load(f)
+
+    validate_config(config, args.config)
 
     output_dir = Path(config.get('output_dir', './output'))
     output_dir.mkdir(parents=True, exist_ok=True)
 
     all_bands = config.get('bands', [])
     idx_width = len(str(len(all_bands)))
-    positions = {b['name']: i + 1 for i, b in enumerate(all_bands)}
 
-    def with_prefix(band):
-        idx = positions[band['name']]
+    def with_prefix(i, band):
         b = dict(band)
-        b['output'] = f'{idx:0{idx_width}d}_{band["output"]}'
+        b['output'] = f'{(i + 1):0{idx_width}d}_{band["output"]}'
         return b
 
-    bands = [with_prefix(b) for b in all_bands]
+    bands = [with_prefix(i, b) for i, b in enumerate(all_bands)]
     if args.only:
         filters = [f.strip().lower() for f in args.only.split(',')]
         def matches(name):
@@ -438,6 +473,10 @@ def main():
             tmp_dir = Path(tmp)
             for i, band in enumerate(bands, 1):
                 print(f'\n{C.CYAN}{C.BOLD}[{i}/{len(bands)}] {band["name"]}{C.RESET}')
+                if args.skip_existing and (output_dir / band['output']).exists():
+                    print(f'  {C.DIM}skip (exists){C.RESET}')
+                    ok += 1
+                    continue
                 if band.get('_review'):
                     print(f'  {C.YELLOW}WARNING: {band["_review"]}{C.RESET}')
                 if process_band(band, config, output_dir, tmp_dir, font_path):

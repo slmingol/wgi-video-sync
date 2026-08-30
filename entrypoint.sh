@@ -13,8 +13,9 @@ case "$1" in
     echo "Examples:"
     echo "  docker run -v /data/wgi:/videos wgi-sync analyze /videos"
     echo "  docker run -v /data/wgi:/videos wgi-sync analyze /videos --threshold 0.3"
-    echo "  docker run -v /data/wgi:/videos wgi-sync process /videos/config.json"
-    echo "  docker run -v /data/wgi:/videos wgi-sync process /videos/config.json --only buckhorn"
-    echo "  docker run -v /data/wgi:/videos wgi-sync process /videos/config.json --dry-run"
+    echo "  docker run -v /data/wgi:/videos -v \$(pwd)/config.json:/config.json:ro wgi-sync process /config.json"
+    echo "  docker run ... wgi-sync process /config.json --only buckhorn"
+    echo "  docker run ... wgi-sync process /config.json --dry-run"
+    echo "  docker run ... wgi-sync process /config.json --skip-existing"
     ;;
 esac

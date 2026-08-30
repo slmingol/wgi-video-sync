@@ -133,8 +133,7 @@
       "source_file": "07_2026-04-18_finals_paradigm_perc_WGI.mp4",
       "start": "00:02:05.000",
       "end": "00:09:12.620",
-      "output": "paradigm_percussion.mp4",
-      "_review": "9:12 total -- trim dead time at start/end if needed"
+      "output": "paradigm_percussion.mp4"
     },
     {
       "name": "Infinity 2",
