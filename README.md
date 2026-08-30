@@ -7,7 +7,7 @@
 ![Docker](https://img.shields.io/badge/docker%20%7C%20podman-supported-2496ED?logo=docker&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white)
 ![CI](https://github.com/slmingol/wgi-video-sync/actions/workflows/test.yml/badge.svg)
-![License](https://img.shields.io/badge/license-private-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
 **[Styled docs](https://slmingol.github.io/wgi-video-sync/)**
 
