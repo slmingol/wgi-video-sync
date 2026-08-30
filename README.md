@@ -1,3 +1,5 @@
+![wgi-video-sync](logo.svg)
+
 # wgi-video-sync
 
 Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.
