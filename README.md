@@ -32,6 +32,51 @@ make dry-run VIDEO_DIR=/path/to/videos
 make process VIDEO_DIR=/path/to/videos
 ```
 
+## Examples
+
+```sh
+# Build image
+make build
+
+# Analyze — writes config.json into VIDEO_DIR
+make analyze VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+# Analyze with higher sensitivity (more cuts detected)
+make analyze VIDEO_DIR=/Volumes/data/media/wgi/2026 THRESHOLD=0.25
+
+# Preview the cut plan without touching video
+make dry-run VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+# Process all bands
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+# Process only one band (substring match, case-insensitive)
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY=buckhorn
+
+# Process multiple bands
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY="rcc,matrix"
+
+# Deploy scripts to remote host and rebuild image there
+make deploy REMOTE=little-willow
+
+# Drop into shell inside container (useful for debugging ffmpeg commands)
+make shell VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+# Remove output files, keep config
+make clean VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+# Remove output files AND config.json — full reset
+make clean-all VIDEO_DIR=/Volumes/data/media/wgi/2026
+```
+
+Export `VIDEO_DIR` to skip repeating it:
+```sh
+export VIDEO_DIR=/Volumes/data/media/wgi/2026
+make analyze
+make dry-run
+make process ONLY=buckhorn
+```
+
 ## Targets
 
 | Target | Description |
