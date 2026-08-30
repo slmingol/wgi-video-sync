@@ -131,6 +131,36 @@ make process ONLY=buckhorn
 }
 ```
 
+### Top-level fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `input_dir` | string | `/videos` | Container path where source files are mounted. Do not change unless you alter the Makefile mount. |
+| `output_dir` | string | `/videos/output` | Container path for rendered output files. Created automatically. |
+| `event` | string | — | Event name shown on every title card (e.g. `"WGI World Championships, Dayton, OH"`). |
+| `title_duration_seconds` | int | `4` | How long the title card is displayed before the performance begins. |
+| `title_font_size` | int | `72` | Title card font size in points. |
+| `title_font_color` | string | `"white"` | Title card text color — any CSS color name or hex value. |
+| `title_background_color` | string | `"black"` | Title card background color. |
+| `fade_duration_seconds` | float | `1.0` | Fade-in/fade-out duration at the start and end of each clip. |
+| `bands` | array | — | Ordered list of band entries. Output files are prefixed with their 1-based position (`01_`, `02_`, …). |
+
+### Band entry fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | yes | Band name — appears on the title card. |
+| `location` | string | no | City/state — appears on the title card beneath the name. |
+| `date` | string | no | Performance date — appears on the title card (e.g. `"April 18, 2026"`). |
+| `source_file` | string | yes* | Filename of the source video, relative to `input_dir`. Omit when using `segments`. |
+| `start` | string | yes* | Timestamp to begin the cut (`HH:MM:SS.mmm`). Omit when using `segments`. |
+| `end` | string | yes* | Timestamp to end the cut (`HH:MM:SS.mmm`). Omit when using `segments`. |
+| `segments` | array | yes* | Use instead of `source_file`/`start`/`end` when the performance spans multiple source files. Each element has `source_file`, `start`, `end`. |
+| `output` | string | yes | Output filename relative to `output_dir`. Convention: `snake_case_band_name.mp4`. |
+| `_review` | string | no | Free-text note flagged as a warning during `process`. Remove when timestamps are confirmed. |
+
+\* Either `source_file`+`start`+`end` or `segments` is required — not both.
+
 ### Multi-segment entries
 
 For bands whose performance spans multiple source files:
@@ -138,6 +168,8 @@ For bands whose performance spans multiple source files:
 ```json
 {
   "name": "Jordan HS",
+  "location": "Fulshear, TX",
+  "date": "April 18, 2026",
   "segments": [
     { "source_file": "02_file.mp4", "start": "00:35:30.000", "end": "00:39:10.404" },
     { "source_file": "03_file.mp4", "start": "00:00:00.000", "end": "00:04:00.000" }
@@ -145,6 +177,8 @@ For bands whose performance spans multiple source files:
   "output": "jordan_hs.mp4"
 }
 ```
+
+Segments are concatenated in order. Fade-in applies to the first segment only; subsequent joins are seamless cuts.
 
 ### Video file naming
 
