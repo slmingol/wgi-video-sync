@@ -37,14 +37,19 @@
       <stop offset="85%"  stop-color="#4A5858"/>
       <stop offset="100%" stop-color="#384848"/>
     </linearGradient>
+    <!-- Film strip sprocket border pattern -->
+    <pattern id="film-strip" x="0" y="0" width="20" height="8" patternUnits="userSpaceOnUse">
+      <rect width="20" height="8" fill="#C08A20"/>
+      <rect x="4.5" y="1.5" width="11" height="5" rx="1" fill="#0A0B12"/>
+    </pattern>
   </defs>
 
   <!-- Background -->
   <rect width="880" height="200" fill="url(#bg)"/>
 
-  <!-- Amber border rules -->
-  <rect x="0" y="0"   width="880" height="3" fill="#C08A20"/>
-  <rect x="0" y="197" width="880" height="3" fill="#C08A20"/>
+  <!-- Film strip border rules (sprocket perforations top + bottom) -->
+  <rect x="0" y="0"   width="880" height="8" fill="url(#film-strip)"/>
+  <rect x="0" y="192" width="880" height="8" fill="url(#film-strip)"/>
 
   <!-- ══ DRUM (top-down view) ══ -->
   <!-- Shell body -->
@@ -197,10 +202,10 @@
 
 
   <!-- ══ AMBER CUT-LINE DIVIDER ══ -->
-  <line x1="334" y1="3"   x2="334" y2="197" stroke="#C08A20" stroke-width="7" stroke-opacity="0.10"/>
-  <line x1="334" y1="3"   x2="334" y2="197" stroke="#C08A20" stroke-width="1.5"/>
-  <polygon points="328,3   340,3   334,13"  fill="#C08A20"/>
-  <polygon points="328,197 340,197 334,187" fill="#C08A20"/>
+  <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="7" stroke-opacity="0.10"/>
+  <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="1.5"/>
+  <polygon points="328,8   340,8   334,18"  fill="#C08A20"/>
+  <polygon points="328,192 340,192 334,182" fill="#C08A20"/>
 
 
   <!-- ══ TYPOGRAPHY ══ -->
@@ -224,4 +229,30 @@
         font-size="11"
         fill="#283048"
         letter-spacing="2.5">COMPETITION RECORDING PIPELINE</text>
+
+  <!-- ══ FILM PLAY ICON (upper-right) ══ -->
+  <circle cx="851" cy="52" r="26" fill="#C08A20" fill-opacity="0.09" stroke="#C08A20" stroke-opacity="0.50" stroke-width="1.8"/>
+  <polygon points="843,40 843,64 868,52" fill="#C08A20" fill-opacity="0.70"/>
+
+  <!-- Small film strip strip below play icon -->
+  <rect x="820" y="84" width="62" height="40" rx="2" fill="#0C0E18" stroke="#C08A20" stroke-width="1" stroke-opacity="0.35"/>
+  <!-- Left sprocket lane -->
+  <rect x="820" y="84" width="9" height="40" fill="#0A0B12"/>
+  <rect x="822" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <!-- Right sprocket lane -->
+  <rect x="873" y="84" width="9" height="40" fill="#0A0B12"/>
+  <rect x="875" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <!-- Frame separator lines -->
+  <line x1="849" y1="84" x2="849" y2="124" stroke="#C08A20" stroke-width="0.7" stroke-opacity="0.25"/>
+  <!-- Subtle frame content (dim rects suggesting recorded video) -->
+  <rect x="831" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="852" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="831" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="852" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
 </svg>
