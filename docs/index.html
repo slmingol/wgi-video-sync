@@ -713,7 +713,7 @@ uv run python -m pytest tests/ -v</code></pre>
 
 <!-- Compose -->
 <h2>Compose</h2>
-<p><code>compose.yaml</code> defines <code>analyze</code>, <code>process</code>, and <code>dry-run</code> services. Set <code>VIDEO_DIR</code> and run any service with <code>docker compose run</code> (or <code>podman compose run</code>):</p>
+<p><code>docker-compose.yaml</code> defines <code>analyze</code>, <code>process</code>, and <code>dry-run</code> services. Set <code>VIDEO_DIR</code> and run any service with <code>docker compose run</code> (or <code>podman compose run</code>):</p>
 <pre><code>export VIDEO_DIR=/Volumes/data/media/wgi/2026
 
 docker compose run analyze
@@ -721,7 +721,7 @@ docker compose run dry-run
 docker compose run process
 docker compose run process --only buckhorn
 docker compose run process --skip-existing</code></pre>
-<p>By default the image is pulled from GHCR (<code>ghcr.io/slmingol/wgi-video-sync:latest</code>). To build locally instead, swap the <code>image:</code> line for <code>build: .</code> in <code>compose.yaml</code>.</p>
+<p>By default the image is pulled from GHCR (<code>ghcr.io/slmingol/wgi-video-sync:latest</code>). To build locally instead, swap the <code>image:</code> line for <code>build: .</code> in <code>docker-compose.yaml</code>.</p>
 
 <!-- Tips -->
 <h2>Tips</h2>

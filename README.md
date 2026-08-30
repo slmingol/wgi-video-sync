@@ -293,7 +293,7 @@ uv run python -m pytest tests/ -v
 
 ## Compose
 
-`compose.yaml` defines `analyze`, `process`, and `dry-run` services. Set `VIDEO_DIR` and run any service with `docker compose run` (or `podman compose run`):
+`docker-compose.yaml` defines `analyze`, `process`, and `dry-run` services. Set `VIDEO_DIR` and run any service with `docker compose run` (or `podman compose run`):
 
 ```sh
 export VIDEO_DIR=/Volumes/data/media/wgi/2026
@@ -305,7 +305,7 @@ docker compose run process --only buckhorn
 docker compose run process --skip-existing
 ```
 
-By default the image is pulled from GHCR (`ghcr.io/slmingol/wgi-video-sync:latest`). To build locally instead, swap the `image:` line for `build: .` in `compose.yaml`.
+By default the image is pulled from GHCR (`ghcr.io/slmingol/wgi-video-sync:latest`). To build locally instead, swap the `image:` line for `build: .` in `docker-compose.yaml`.
 
 ## Tips
 
