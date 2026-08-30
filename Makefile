@@ -69,12 +69,14 @@ analyze: guard
 process: guard
 	@printf '$(CYAN)Processing$(RESET) $(BOLD)$(CURDIR)/config.json$(RESET)\n'
 	$(DOCKER_PROC) process /config.json \
-	  $(if $(ONLY),--only "$(ONLY)")
+	  $(if $(ONLY),--only "$(ONLY)") \
+	  $(if $(SKIP_EXISTING),--skip-existing)
 
 dry-run: guard
 	@printf '$(DIM)Dry run --$(RESET) $(BOLD)$(CURDIR)/config.json$(RESET)\n'
 	$(DOCKER_PROC) process /config.json --dry-run \
-	  $(if $(ONLY),--only "$(ONLY)")
+	  $(if $(ONLY),--only "$(ONLY)") \
+	  $(if $(SKIP_EXISTING),--skip-existing)
 
 shell: guard
 	@printf '$(CYAN)Opening shell in container$(RESET) $(DIM)(VIDEO_DIR mounted at /videos)$(RESET)\n'

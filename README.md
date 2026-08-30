@@ -56,6 +56,9 @@ make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY=buckhorn
 # Process multiple bands
 make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY="rcc,matrix"
 
+# Resume an interrupted run — skip bands whose output file already exists
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026 SKIP_EXISTING=1
+
 # Deploy scripts to remote host and rebuild image there
 make deploy REMOTE=little-willow
 
@@ -99,6 +102,7 @@ make process ONLY=buckhorn
 | `THRESHOLD` | `0.35` | Scene detection sensitivity (lower = more cuts) |
 | `MIN_GAP` | `90` | Minimum quiet seconds between performances |
 | `ONLY` | — | Process only bands whose name contains this string |
+| `SKIP_EXISTING` | — | Set to any value to skip bands whose output file already exists (resume interrupted runs) |
 | `REMOTE` | `little-willow` | Deploy target host |
 | `REMOTE_DIR` | `~/wgi-video-sync` | Deploy path on remote |
 | `RUNTIME` | auto | `podman` or `docker` (detected automatically) |
@@ -200,9 +204,10 @@ FloMarching and similar live-capture sources sometimes have broken PTS or frame-
 `analyze` writes `config.json` into `VIDEO_DIR` (the container's `/videos` working dir). That file is a starting draft — edit it freely. The **project-dir copy** (`./config.json`) is what `process` actually uses: the Makefile mounts it read-only into the container at `/config.json`, independent of whatever is in `VIDEO_DIR`.
 
 Typical lifecycle:
-1. `make analyze` drops a draft into `VIDEO_DIR/config.json`
-2. Copy and refine it as `./config.json` in this project dir (add `location`, `date`, `event`, fix timestamps, build multi-segment entries)
-3. `make process` reads `./config.json`; the copy in `VIDEO_DIR` is no longer used
+1. `make analyze` drops a draft into `VIDEO_DIR/config.json` with `input_dir: /videos`, blank `location`/`date`/`event` placeholders, and `_review` flags on auto-detected cuts
+2. Fill in `event`, `location`, `date` for each band; fix timestamps; build multi-segment entries for split performances; remove `_review` flags
+3. Copy the refined file to `./config.json` in this project dir
+4. `make process` reads `./config.json`; the copy in `VIDEO_DIR` is no longer used
 
 Keep the project-dir `config.json` as the source of truth. The one in `VIDEO_DIR` is just the raw analyze output.
 
@@ -254,6 +259,17 @@ The `config.json` in the source video dir is the older analyze draft (simpler na
 | 26 | `26_perc_world_champion_awards.mp4` | Perc World Champion Awards | — |
 
 Event: WGI World Championships, Dayton, OH — April 18, 2026
+
+## Testing
+
+Unit tests cover pure functions in `analyze.py` and `process.py` — timestamp formatting, slugification, band name parsing, gap-based cut detection, fps parsing/snapping, timestamp-to-seconds conversion, and config schema validation.
+
+```sh
+uv venv && uv pip install pytest
+uv run python -m pytest tests/ -v
+```
+
+28 tests, no ffmpeg required.
 
 ## Tips
 

@@ -453,6 +453,9 @@ make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY=buckhorn
 # Process multiple bands
 make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY="rcc,matrix"
 
+# Resume interrupted run — skip bands whose output already exists
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026 SKIP_EXISTING=1
+
 # Deploy scripts to remote host and rebuild image there
 make deploy REMOTE=little-willow
 
@@ -497,6 +500,7 @@ make process ONLY=buckhorn</code></pre>
         <tr><td><code>THRESHOLD</code></td><td><code>0.35</code></td><td>Scene detection sensitivity (lower = more cuts)</td></tr>
         <tr><td><code>MIN_GAP</code></td><td><code>90</code></td><td>Minimum quiet seconds between performances</td></tr>
         <tr><td><code>ONLY</code></td><td>—</td><td>Process only bands whose name contains this string</td></tr>
+<tr><td><code>SKIP_EXISTING</code></td><td>—</td><td>Set to any value to skip bands whose output file already exists (resume interrupted runs)</td></tr>
         <tr><td><code>REMOTE</code></td><td><code>little-willow</code></td><td>Deploy target host</td></tr>
         <tr><td><code>REMOTE_DIR</code></td><td><code>~/wgi-video-sync</code></td><td>Deploy path on remote</td></tr>
         <tr><td><code>RUNTIME</code></td><td>auto</td><td><code>podman</code> or <code>docker</code> (detected automatically)</td></tr>
@@ -592,7 +596,7 @@ make process ONLY=buckhorn</code></pre>
   <h2>Config.json ownership</h2>
   <p><code>analyze</code> writes <code>config.json</code> into <code>VIDEO_DIR</code> (the container's <code>/videos</code> working dir). That file is a starting draft. The <strong>project-dir copy</strong> (<code>./config.json</code>) is what <code>process</code> actually uses: the Makefile mounts it read-only into the container at <code>/config.json</code>, independent of whatever is in <code>VIDEO_DIR</code>.</p>
   <ol>
-    <li><code>make analyze</code> drops a draft into <code>VIDEO_DIR/config.json</code></li>
+    <li><code>make analyze</code> drops a draft into <code>VIDEO_DIR/config.json</code> with <code>input_dir: /videos</code>, blank <code>location</code>/<code>date</code>/<code>event</code> placeholders, and <code>_review</code> flags on auto-detected cuts</li>
     <li>Copy and refine it as <code>./config.json</code> in this project dir (add <code>location</code>, <code>date</code>, <code>event</code>, fix timestamps, build multi-segment entries)</li>
     <li><code>make process</code> reads <code>./config.json</code>; the copy in <code>VIDEO_DIR</code> is no longer used</li>
   </ol>
@@ -644,7 +648,12 @@ make process VIDEO_DIR=/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion
   </div>
 
   <div class="tips">
-    <h2>Tips</h2>
+    <h2>Testing</h2>
+<p>Unit tests cover pure functions in <code>analyze.py</code> and <code>process.py</code> — timestamp formatting, slugification, band name parsing, gap-based cut detection, fps parsing/snapping, timestamp-to-seconds conversion, and config schema validation.</p>
+<pre><code>uv venv &amp;&amp; uv pip install pytest
+uv run python -m pytest tests/ -v</code></pre>
+<p>28 tests, no ffmpeg required.</p>
+<h2>Tips</h2>
     <ul>
       <li>Export <code>VIDEO_DIR</code> to avoid repeating it: <code>export VIDEO_DIR=/path/to/videos</code></li>
       <li>Use <code>ONLY=buckhorn</code> to reprocess a single band; comma-separate for multiple: <code>ONLY="rcc,matrix"</code></li>
