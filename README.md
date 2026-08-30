@@ -2,6 +2,12 @@
 
 # wgi-video-sync
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
+![ffmpeg](https://img.shields.io/badge/ffmpeg-required-darkgreen?logo=ffmpeg&logoColor=white)
+![Docker](https://img.shields.io/badge/docker%20%7C%20podman-supported-2496ED?logo=docker&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white)
+![License](https://img.shields.io/badge/license-private-lightgrey)
+
 Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.
 
 **Stage 1 — `analyze`**: scans a video directory, detects scene changes, and writes `config.json` with auto-detected start/end timestamps for each band.  
