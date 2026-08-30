@@ -291,6 +291,22 @@ uv run python -m pytest tests/ -v
 
 28 tests, no ffmpeg required.
 
+## Compose
+
+`compose.yaml` defines `analyze`, `process`, and `dry-run` services. Set `VIDEO_DIR` and run any service with `docker compose run` (or `podman compose run`):
+
+```sh
+export VIDEO_DIR=/Volumes/data/media/wgi/2026
+
+docker compose run analyze
+docker compose run dry-run
+docker compose run process
+docker compose run process --only buckhorn
+docker compose run process --skip-existing
+```
+
+By default the image is pulled from GHCR (`ghcr.io/slmingol/wgi-video-sync:latest`). To build locally instead, swap the `image:` line for `build: .` in `compose.yaml`.
+
 ## Tips
 
 - Export `VIDEO_DIR` to avoid repeating it: `export VIDEO_DIR=/path/to/videos`

@@ -1,0 +1,36 @@
+# Usage:
+#   export VIDEO_DIR=/path/to/videos
+#   docker compose run analyze
+#   docker compose run process
+#   docker compose run dry-run
+#   docker compose run process --only buckhorn
+#   docker compose run process --skip-existing
+#
+# Set VIDEO_DIR in .env or export it before running.
+# Pull from GHCR:  image: ghcr.io/slmingol/wgi-video-sync:latest
+# Build locally:   comment out `image:` and uncomment `build: .`
+
+x-base: &base
+  image: ghcr.io/slmingol/wgi-video-sync:latest
+  # build: .
+  volumes:
+    - ${VIDEO_DIR}:/videos
+
+services:
+  analyze:
+    <<: *base
+    command: analyze /videos
+
+  process:
+    <<: *base
+    volumes:
+      - ${VIDEO_DIR}:/videos
+      - ./config.json:/config.json:ro
+    command: process /config.json
+
+  dry-run:
+    <<: *base
+    volumes:
+      - ${VIDEO_DIR}:/videos
+      - ./config.json:/config.json:ro
+    command: process /config.json --dry-run

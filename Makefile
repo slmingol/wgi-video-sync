@@ -9,7 +9,7 @@ DOCKER      = $(RUNTIME) run --rm -v "$(VIDEO_DIR):/videos" $(IMAGE)
 # For process/dry-run: mounts config.json from the project dir so no manual copy needed
 DOCKER_PROC = $(RUNTIME) run --rm -v "$(VIDEO_DIR):/videos" -v "$(CURDIR)/config.json:/config.json:ro,z" $(IMAGE)
 
-RSYNC_FILES := analyze.py process.py Makefile Dockerfile entrypoint.sh requirements.txt .dockerignore config.json
+RSYNC_FILES := analyze.py process.py Makefile Dockerfile entrypoint.sh requirements.txt .dockerignore config.json compose.yaml
 
 # ANSI colors via printf
 RED    := \033[31m
