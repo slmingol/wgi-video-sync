@@ -3,6 +3,8 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -10,6 +12,14 @@ jobs:
           python-version: '3.12'
       - run: pip install pytest
       - run: pytest tests/ -v
+      - name: Update test count badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          COUNT=$(python -m pytest tests/ --tb=no -q 2>&1 | grep -oP '^\d+(?= passed)')
+          sed -i "s|tests-[0-9]*%20passing|tests-${COUNT}%20passing|g" README.md
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || (git add README.md && git commit -m "chore: update test count badge to ${COUNT} [skip ci]" && git push)
 
   docker:
     runs-on: ubuntu-latest

@@ -95,6 +95,7 @@ make process ONLY=buckhorn
 | Target | Description |
 |--------|-------------|
 | `build` | Build the container image |
+| `pull` | Pull image from GHCR via `docker-compose.yaml` |
 | `analyze` | Scan videos and write `config.json` |
 | `process` | Cut segments and render title cards |
 | `dry-run` | Show plan without touching video |

@@ -19,6 +19,16 @@
       "output": "band_name.mp4"
     },
     {
+      "name": "Band With Explicit Number",
+      "number": 5,
+      "location": "City, ST",
+      "date": "April 18, 2026",
+      "source_file": "01_filename.mp4",
+      "start": "00:10:00.000",
+      "end": "00:16:00.000",
+      "output": "band_with_explicit_number.mp4"
+    },
+    {
       "name": "Multi-Source Band",
       "location": "City, ST",
       "date": "April 18, 2026",
