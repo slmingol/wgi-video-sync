@@ -10,3 +10,9 @@ jobs:
           python-version: '3.12'
       - run: pip install pytest
       - run: pytest tests/ -v
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t wgi-sync .
