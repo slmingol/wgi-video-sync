@@ -1,0 +1,10 @@
+.git
+*.mp4
+*.webm
+*.mov
+*.mkv
+*.pdf
+*.jpg
+*.png
+config.json
+output/
