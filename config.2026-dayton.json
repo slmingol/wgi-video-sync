@@ -1,0 +1,265 @@
+{
+  "_note": "Review name/start/end for each band, remove _review flags when satisfied. Then: python process.py config.json",
+  "input_dir": "/videos",
+  "output_dir": "/videos/output",
+  "title_duration_seconds": 4,
+  "title_font_size": 72,
+  "title_font_color": "white",
+  "title_background_color": "black",
+  "fade_duration_seconds": 1.0,
+  "event": "WGI World Championships, Dayton, OH",
+  "bands": [
+    {
+      "name": "Central Lafourche HS",
+      "location": "Raceland, LA",
+      "date": "April 18, 2026",
+      "source_file": "01_central_lafourche_hs__toystory_WGI.mp4",
+      "start": "00:00:27.000",
+      "end": "00:06:35.211",
+      "output": "central_lafourche_hs.mp4"
+    },
+    {
+      "name": "Franklin Community HS",
+      "location": "Franklin, IN",
+      "date": "April 18, 2026",
+      "source_file": "02_franklin__greenfield-central__auburn__jordan_hs_WGI.mp4",
+      "start": "00:00:39.000",
+      "end": "00:06:45.000",
+      "output": "franklin_community_hs.mp4"
+    },
+    {
+      "name": "Greenfield-Central HS",
+      "location": "Greenfield, IN",
+      "date": "April 18, 2026",
+      "source_file": "02_franklin__greenfield-central__auburn__jordan_hs_WGI.mp4",
+      "start": "00:08:20.000",
+      "end": "00:14:30.000",
+      "output": "greenfield_central_hs.mp4"
+    },
+    {
+      "name": "Auburn HS",
+      "location": "Auburn, AL",
+      "date": "April 18, 2026",
+      "source_file": "02_franklin__greenfield-central__auburn__jordan_hs_WGI.mp4",
+      "start": "00:17:30.000",
+      "end": "00:24:00.000",
+      "output": "auburn_hs.mp4"
+    },
+    {
+      "name": "Jordan HS",
+      "location": "Fulshear, TX",
+      "date": "April 18, 2026",
+      "segments": [
+        {
+          "source_file": "02_franklin__greenfield-central__auburn__jordan_hs_WGI.mp4",
+          "start": "00:35:30.000",
+          "end": "00:39:10.404"
+        },
+        {
+          "source_file": "03_jordan__beavercreek_hs_WGI.mp4",
+          "start": "00:00:00.000",
+          "end": "00:04:00.000"
+        }
+      ],
+      "output": "jordan_hs.mp4"
+    },
+    {
+      "name": "Beavercreek HS",
+      "location": "Beavercreek, OH",
+      "date": "April 18, 2026",
+      "source_file": "03_jordan__beavercreek_hs_WGI.mp4",
+      "start": "00:07:00.000",
+      "end": "00:14:45.000",
+      "output": "beavercreek_hs.mp4"
+    },
+    {
+      "name": "Pace HS",
+      "location": "Pace, FL",
+      "date": "April 18, 2026",
+      "source_file": "04_pace__victor_j_andrews_hs_WGI.mp4",
+      "start": "00:01:25.000",
+      "end": "00:07:00.000",
+      "output": "pace_hs.mp4"
+    },
+    {
+      "name": "Victor J Andrew HS",
+      "location": "Tinley Park, IL",
+      "date": "April 18, 2026",
+      "source_file": "04_pace__victor_j_andrews_hs_WGI.mp4",
+      "start": "00:10:30.000",
+      "end": "00:19:00.000",
+      "output": "victor_j_andrew_hs.mp4"
+    },
+    {
+      "name": "Sonia Sotomayor HS",
+      "location": "San Antonio, TX",
+      "date": "April 18, 2026",
+      "segments": [
+        {
+          "source_file": "04_pace__victor_j_andrews_hs_WGI.mp4",
+          "start": "00:21:30.000",
+          "end": "00:28:10.217"
+        },
+        {
+          "source_file": "05_sonya_sotomayor__sparkman_hs_WGI.mp4",
+          "start": "00:00:00.000",
+          "end": "00:01:30.000"
+        }
+      ],
+      "output": "sonia_sotomayor_hs.mp4"
+    },
+    {
+      "name": "Sparkman HS",
+      "location": "Harvest, AL",
+      "date": "April 18, 2026",
+      "source_file": "05_sonya_sotomayor__sparkman_hs_WGI.mp4",
+      "start": "00:03:30.000",
+      "end": "00:11:30.000",
+      "output": "sparkman_hs.mp4"
+    },
+    {
+      "name": "Buckhorn Percussion",
+      "location": "New Market, AL",
+      "date": "April 18, 2026",
+      "source_file": "06_buckhorn_percussions_WGI.mp4",
+      "start": "00:05:45.000",
+      "end": "00:13:30.021",
+      "output": "buckhorn_percussion.mp4"
+    },
+    {
+      "name": "Paradigm Percussion",
+      "location": "Iron Station, NC",
+      "date": "April 18, 2026",
+      "source_file": "07_2026-04-18_finals_paradigm_perc_WGI.mp4",
+      "start": "00:02:05.000",
+      "end": "00:09:12.620",
+      "output": "paradigm_percussion.mp4"
+    },
+    {
+      "name": "Infinity 2",
+      "location": "Orlando, FL",
+      "date": "April 18, 2026",
+      "source_file": "08_inifinity2__redline__cap-city__matrix_WGI.mp4",
+      "start": "00:00:00.000",
+      "end": "00:06:45.000",
+      "output": "infinity_2.mp4"
+    },
+    {
+      "name": "Redline",
+      "location": "Plymouth, MI",
+      "date": "April 18, 2026",
+      "source_file": "08_inifinity2__redline__cap-city__matrix_WGI.mp4",
+      "start": "00:07:20.000",
+      "end": "00:15:15.000",
+      "output": "redline.mp4"
+    },
+    {
+      "name": "Cap City",
+      "location": "Columbus, OH",
+      "date": "April 18, 2026",
+      "source_file": "08_inifinity2__redline__cap-city__matrix_WGI.mp4",
+      "start": "00:15:50.000",
+      "end": "00:25:30.000",
+      "output": "cap_city.mp4"
+    },
+    {
+      "name": "Matrix",
+      "location": "Akron, OH",
+      "date": "April 18, 2026",
+      "source_file": "08_inifinity2__redline__cap-city__matrix_WGI.mp4",
+      "start": "00:26:20.000",
+      "end": "00:32:30.016",
+      "output": "matrix.mp4"
+    },
+    {
+      "name": "Rhythmic Force Percussion",
+      "location": "Austin, TX",
+      "date": "April 18, 2026",
+      "source_file": "09_rhythmic-force-perc__george-mason-univ__infinity_WGI.mp4",
+      "start": "00:00:21.000",
+      "end": "00:07:30.000",
+      "output": "rhythmic_force_percussion.mp4"
+    },
+    {
+      "name": "George Mason University",
+      "location": "Fairfax, VA",
+      "date": "April 18, 2026",
+      "source_file": "09_rhythmic-force-perc__george-mason-univ__infinity_WGI.mp4",
+      "start": "00:08:00.000",
+      "end": "00:16:15.000",
+      "output": "george_mason_university.mp4"
+    },
+    {
+      "name": "Infinity",
+      "location": "Orlando, FL",
+      "date": "April 18, 2026",
+      "source_file": "09_rhythmic-force-perc__george-mason-univ__infinity_WGI.mp4",
+      "start": "00:17:15.000",
+      "end": "00:26:00.178",
+      "output": "infinity.mp4"
+    },
+    {
+      "name": "Music City Mystique",
+      "location": "Nashville, TN",
+      "date": "April 18, 2026",
+      "source_file": "10_music-city-mystique__broken-city__pulse-perc__rcc_WGI.mp4",
+      "start": "00:00:45.000",
+      "end": "00:08:15.000",
+      "output": "music_city_mystique.mp4"
+    },
+    {
+      "name": "Broken City",
+      "location": "Lake Elsinore, CA",
+      "date": "April 18, 2026",
+      "source_file": "10_music-city-mystique__broken-city__pulse-perc__rcc_WGI.mp4",
+      "start": "00:09:00.000",
+      "end": "00:16:15.000",
+      "output": "broken_city.mp4"
+    },
+    {
+      "name": "Pulse Percussion",
+      "location": "Ontario, CA",
+      "date": "April 18, 2026",
+      "source_file": "10_music-city-mystique__broken-city__pulse-perc__rcc_WGI.mp4",
+      "start": "00:16:20.000",
+      "end": "00:24:45.000",
+      "output": "pulse_percussion.mp4"
+    },
+    {
+      "name": "RCC",
+      "location": "Riverside, CA",
+      "date": "April 18, 2026",
+      "source_file": "10_music-city-mystique__broken-city__pulse-perc__rcc_WGI.mp4",
+      "start": "00:24:48.000",
+      "end": "00:35:53.099",
+      "output": "rcc.mp4"
+    },
+    {
+      "name": "Rhythm X",
+      "location": "Indianapolis, IN",
+      "date": "April 18, 2026",
+      "source_file": "11_rhythm-x__atlanta-quest_WGI.mp4",
+      "start": "00:00:20.000",
+      "end": "00:09:15.000",
+      "output": "rhythm_x.mp4"
+    },
+    {
+      "name": "Atlanta Quest",
+      "location": "Atlanta, GA",
+      "date": "April 18, 2026",
+      "source_file": "11_rhythm-x__atlanta-quest_WGI.mp4",
+      "start": "00:09:39.000",
+      "end": "00:17:15.000",
+      "output": "atlanta_quest.mp4"
+    },
+    {
+      "name": "Perc World Champion Awards",
+      "location": "",
+      "date": "",
+      "source_file": "12_perc_world_champion_awards_WGI.mp4",
+      "start": "00:00:01.000",
+      "end": "00:09:27.107",
+      "output": "perc_world_champion_awards.mp4"
+    }
+  ]
+}

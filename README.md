@@ -6,6 +6,7 @@
 ![ffmpeg](https://img.shields.io/badge/ffmpeg-required-darkgreen?logo=ffmpeg&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker%20%7C%20podman-supported-2496ED?logo=docker&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/slmingol/wgi-video-sync/actions/workflows/test.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-private-lightgrey)
 
 **[Styled docs](https://slmingol.github.io/wgi-video-sync/)**
@@ -168,6 +169,7 @@ make process ONLY=buckhorn
 | `start` | string | yes* | Timestamp to begin the cut (`HH:MM:SS.mmm`). Omit when using `segments`. |
 | `end` | string | yes* | Timestamp to end the cut (`HH:MM:SS.mmm`). Omit when using `segments`. |
 | `segments` | array | yes* | Use instead of `source_file`/`start`/`end` when the performance spans multiple source files. Each element has `source_file`, `start`, `end`. |
+| `number` | int | no | Explicit output prefix number. Overrides the 1-based position in the `bands` array. Useful when archiving a subset of bands in a specific order. |
 | `output` | string | yes | Output filename relative to `output_dir`. Convention: `snake_case_band_name.mp4`. |
 | `_review` | string | no | Free-text note flagged as a warning during `process`. Remove when timestamps are confirmed. |
 
@@ -212,12 +214,22 @@ FloMarching and similar live-capture sources sometimes have broken PTS or frame-
 `analyze` writes `config.json` into `VIDEO_DIR` (the container's `/videos` working dir). That file is a starting draft — edit it freely. The **project-dir copy** (`./config.json`) is what `process` actually uses: the Makefile mounts it read-only into the container at `/config.json`, independent of whatever is in `VIDEO_DIR`.
 
 Typical lifecycle:
-1. `make analyze` drops a draft into `VIDEO_DIR/config.json` with `input_dir: /videos`, blank `location`/`date`/`event` placeholders, and `_review` flags on auto-detected cuts
-2. Fill in `event`, `location`, `date` for each band; fix timestamps; build multi-segment entries for split performances; remove `_review` flags
+1. `make analyze` drops a draft into `VIDEO_DIR/config.json` with `input_dir: /videos`, blank `location`/`date`/`event` placeholders, and `_review` flags on auto-detected cuts. If a schedule PDF is present alongside the videos, `analyze` extracts it and pre-fills `location`, `date`, and `event` fields where a match is found.
+2. Fill in any remaining `event`, `location`, `date` fields; fix timestamps; build multi-segment entries for split performances; remove `_review` flags
 3. Copy the refined file to `./config.json` in this project dir
 4. `make process` reads `./config.json`; the copy in `VIDEO_DIR` is no longer used
 
 Keep the project-dir `config.json` as the source of truth. The one in `VIDEO_DIR` is just the raw analyze output.
+
+### Config archiving
+
+After each event, archive the final config before overwriting it:
+
+```sh
+cp config.json config.2026-dayton.json
+```
+
+Archived configs live alongside `config.json` in the project root. The naming convention is `config.<year>-<city>.json`. `config.example.json` is a minimal template documenting both entry formats.
 
 ### 2026 WGI Dayton run
 

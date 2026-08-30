@@ -1,0 +1,32 @@
+{
+  "_note": "Fill in event/location/date. Remove _review flags when timestamps confirmed. Copy to config.json before running make process.",
+  "input_dir": "/videos",
+  "output_dir": "/videos/output",
+  "event": "WGI World Championships, Dayton, OH",
+  "title_duration_seconds": 4,
+  "title_font_size": 72,
+  "title_font_color": "white",
+  "title_background_color": "black",
+  "fade_duration_seconds": 1.0,
+  "bands": [
+    {
+      "name": "Band Name",
+      "location": "City, ST",
+      "date": "April 18, 2026",
+      "source_file": "01_filename.mp4",
+      "start": "00:00:27.000",
+      "end": "00:06:35.000",
+      "output": "band_name.mp4"
+    },
+    {
+      "name": "Multi-Source Band",
+      "location": "City, ST",
+      "date": "April 18, 2026",
+      "segments": [
+        { "source_file": "02_file.mp4", "start": "00:35:30.000", "end": "00:39:10.000" },
+        { "source_file": "03_file.mp4", "start": "00:00:00.000", "end": "00:04:00.000" }
+      ],
+      "output": "multi_source_band.mp4"
+    }
+  ]
+}

@@ -135,6 +135,60 @@ def parse_names(stem):
     return names
 
 
+def parse_schedule(text_files):
+    """Parse extracted PDF text for event name, dates, and band/location hints.
+
+    Returns dict with 'event', 'date', and 'bands' list (each: name, location, date).
+    The caller uses this to pre-fill config fields where the video filename has no metadata.
+    """
+    hints = {'event': '', 'date': '', 'bands': []}
+    date_pat = re.compile(
+        r'(?:January|February|March|April|May|June|July|August|'
+        r'September|October|November|December)\s+\d{1,2},?\s+\d{4}',
+        re.IGNORECASE,
+    )
+    # Schedule rows look like:  "2:30 PM   Band Name   City, ST"
+    # (two or more spaces separate the three fields)
+    row_pat = re.compile(
+        r'^\d{1,2}:\d{2}\s*[AP]M\s{2,}(.+?)\s{2,}([A-Za-z ]+,\s*[A-Z]{2})\s*$'
+    )
+    for txt_path in text_files:
+        try:
+            text = txt_path.read_text(encoding='utf-8')
+        except Exception:
+            continue
+        current_date = ''
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if not hints['event'] and 'wgi' in line.lower() and len(line) < 120:
+                hints['event'] = line
+            m = date_pat.search(line)
+            if m:
+                current_date = m.group(0).strip()
+                if not hints['date']:
+                    hints['date'] = current_date
+            m = row_pat.match(line)
+            if m:
+                hints['bands'].append({
+                    'name': m.group(1).strip(),
+                    'location': m.group(2).strip(),
+                    'date': current_date,
+                })
+    return hints
+
+
+def _schedule_lookup(name, schedule_bands):
+    """Return best matching schedule entry for a detected band name, or {}."""
+    name_l = name.lower()
+    for h in schedule_bands:
+        h_l = h['name'].lower()
+        if name_l in h_l or h_l in name_l:
+            return h
+    return {}
+
+
 def extract_pdfs(video_dir, out_dir):
     pdfs = sorted(video_dir.glob('*.pdf'))
     if not pdfs:
@@ -169,6 +223,14 @@ def main():
 
     print(f'{C.DIM}Extracting schedule PDFs...{C.RESET}')
     extract_pdfs(video_dir, out_path.parent)
+    txt_files = list(out_path.parent.glob('*.txt'))
+    schedule = parse_schedule(txt_files)
+    if schedule['event']:
+        print(f'  {C.DIM}PDF event: {schedule["event"]}{C.RESET}')
+    if schedule['date']:
+        print(f'  {C.DIM}PDF date:  {schedule["date"]}{C.RESET}')
+    if schedule['bands']:
+        print(f'  {C.DIM}PDF schedule: {len(schedule["bands"])} band row(s) found{C.RESET}')
 
     video_files = sorted(
         f for f in video_dir.iterdir()
@@ -197,10 +259,11 @@ def main():
         print(f'  {C.DIM}Duration: {fmt(dur)}  {info["width"]}x{info["height"]}{C.RESET}')
 
         if n == 1:
+            h = _schedule_lookup(names[0], schedule['bands'])
             bands.append({
                 'name': names[0],
-                'location': '',
-                'date': '',
+                'location': h.get('location', ''),
+                'date': h.get('date', ''),
                 'source_file': vf.name,
                 'start': '00:00:00.000',
                 'end': fmt(dur),
@@ -218,10 +281,11 @@ def main():
 
         bounds = [0.0] + cuts + [dur]
         for i, name in enumerate(names):
+            h = _schedule_lookup(name, schedule['bands'])
             bands.append({
                 'name': name,
-                'location': '',
-                'date': '',
+                'location': h.get('location', ''),
+                'date': h.get('date', ''),
                 'source_file': vf.name,
                 'start': fmt(bounds[i]),
                 'end': fmt(bounds[i + 1]),
@@ -237,7 +301,7 @@ def main():
         ),
         'input_dir': '/videos',
         'output_dir': '/videos/output',
-        'event': '',
+        'event': schedule.get('event', ''),
         'title_duration_seconds': 4,
         'title_font_size': 72,
         'title_font_color': 'white',

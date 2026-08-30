@@ -4,670 +4,722 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>wgi-video-sync</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
-
 <style>
-  :root {
-    --bg:       #F7F5F1;
-    --bg-alt:   #ECEAE5;
-    --bg-code:  #E5E2DC;
-    --border:   #D6D2C8;
-    --text:     #1D1F26;
-    --text-2:   #5A5E6A;
-    --accent:   #B8821E;
-    --tag-bg:   #EDE5D5;
-    --tag-text: #8A5F12;
+/* ── Token palette ── */
+:root {
+  --bg:       #f7f7f5;
+  --surface:  #ffffff;
+  --border:   #e0ddd8;
+  --text:     #1a1a18;
+  --muted:    #5a5a55;
+  --accent:   #b07a18;
+  --code-bg:  #1a1c24;
+  --code-fg:  #d0d4e0;
+  --code-border: #2e3244;
+  --pill-text:#ffffff;
+  --thead-bg: #eeebe6;
+  --tr-alt:   #f3f0eb;
+  --link:     #7060c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:       #111216;
+    --surface:  #18191f;
+    --border:   #2a2c38;
+    --text:     #d8d6d0;
+    --muted:    #80807a;
+    --accent:   #c09030;
+    --code-bg:  #0e1018;
+    --code-fg:  #c8ccd8;
+    --code-border: #22263a;
+    --pill-text:#ffffff;
+    --thead-bg: #1e2028;
+    --tr-alt:   #181a22;
+    --link:     #9080e0;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg:       #13151C;
-      --bg-alt:   #1A1D26;
-      --bg-code:  #1F2230;
-      --border:   #2C303F;
-      --text:     #E4E1DA;
-      --text-2:   #8A8F9E;
-      --accent:   #D4A033;
-      --tag-bg:   #2A2210;
-      --tag-text: #D4A033;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg:       #13151C;
-    --bg-alt:   #1A1D26;
-    --bg-code:  #1F2230;
-    --border:   #2C303F;
-    --text:     #E4E1DA;
-    --text-2:   #8A8F9E;
-    --accent:   #D4A033;
-    --tag-bg:   #2A2210;
-    --tag-text: #D4A033;
-  }
+}
+:root[data-theme="dark"] {
+  --bg:       #111216;
+  --surface:  #18191f;
+  --border:   #2a2c38;
+  --text:     #d8d6d0;
+  --muted:    #80807a;
+  --accent:   #c09030;
+  --code-bg:  #0e1018;
+  --code-fg:  #c8ccd8;
+  --code-border: #22263a;
+  --pill-text:#ffffff;
+  --thead-bg: #1e2028;
+  --tr-alt:   #181a22;
+  --link:     #9080e0;
+}
 
-  *, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
 
-  .wrap {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 28px 80px;
-  }
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
 
-  /* Banner */
-  .logo-banner {
-    width: 100%;
-    line-height: 0;
-    border-radius: 4px 4px 0 0;
-    overflow: hidden;
-    margin-bottom: 40px;
-  }
-  .logo-banner svg { display: block; width: 100%; height: auto; }
+/* ── Logo ── */
+.logo-wrap { margin-bottom: 28px; }
+.logo-wrap svg { max-width: 100%; height: auto; border-radius: 6px; display: block; }
 
-  /* Typography */
-  h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 38px;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    margin: 0 0 6px;
-    color: var(--text);
-    text-wrap: balance;
-  }
-  h2 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    margin: 48px 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
-    color: var(--text);
-    text-wrap: balance;
-  }
-  h3 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    margin: 32px 0 12px;
-    color: var(--accent);
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
+/* ── Badges ── */
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pill-text);
+  white-space: nowrap;
+}
+.badge-label {
+  opacity: 0.8;
+  font-weight: 400;
+}
+.b-blue      { background: #1f6feb; }
+.b-dkgreen   { background: #1a7340; }
+.b-docker    { background: #2496ED; }
+.b-green     { background: #1a8c3a; }
+.b-orange    { background: #d97b00; }
+.b-grey      { background: #6a6a6a; }
 
-  p { margin: 0 0 16px; }
-  p:last-child { margin-bottom: 0; }
+/* ── Headings ── */
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  color: var(--text);
+  text-wrap: balance;
+}
+h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 40px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text);
+}
+h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 28px 0 10px;
+  color: var(--text);
+}
+h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 20px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
 
-  strong { font-weight: 500; color: var(--text); }
+/* ── Prose ── */
+p { margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
 
-  /* Lead */
-  .lead {
-    font-size: 15px;
-    color: var(--text-2);
-    margin: 0 0 8px;
-    line-height: 1.65;
-  }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-  /* Stage tags */
-  .stage {
-    display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    background: var(--tag-bg);
-    color: var(--tag-text);
-    padding: 2px 7px;
-    border-radius: 3px;
-    margin-right: 4px;
-  }
+strong { font-weight: 700; }
+em { font-style: italic; }
 
-  /* Code */
-  code {
-    font-family: 'IBM Plex Mono', 'Fira Mono', monospace;
-    font-size: 13px;
-    background: var(--bg-code);
-    color: var(--text);
-    padding: 1px 5px;
-    border-radius: 3px;
-  }
-  pre {
-    background: var(--bg-code);
-    border-radius: 5px;
-    padding: 16px 20px;
-    overflow-x: auto;
-    margin: 0 0 20px;
-    border: 1px solid var(--border);
-  }
-  pre code {
-    background: none;
-    padding: 0;
-    font-size: 13px;
-    line-height: 1.6;
-  }
+/* ── Intro block ── */
+.intro { margin-bottom: 8px; font-size: 1rem; }
+.stage { margin-bottom: 6px; }
 
-  /* Tables */
-  .table-wrap { overflow-x: auto; margin: 0 0 20px; }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 14px;
-  }
-  th {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    text-align: left;
-    padding: 8px 14px;
-    border-bottom: 2px solid var(--border);
-    color: var(--text-2);
-    background: var(--bg-alt);
-    white-space: nowrap;
-  }
-  td {
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-    line-height: 1.55;
-  }
-  tr:last-child td { border-bottom: none; }
-  td code { font-size: 12.5px; }
+/* ── Inline code ── */
+code {
+  font-family: "SF Mono", "Fira Code", Consolas, "Courier New", monospace;
+  font-size: 0.85em;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--code-border);
+}
 
-  /* Required/optional badges */
-  .req { color: var(--accent); font-size: 12px; font-weight: 500; }
-  .opt { color: var(--text-2); font-size: 12px; }
+/* ── Code blocks ── */
+pre {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  font-family: "SF Mono", "Fira Code", Consolas, "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 14px 0 20px;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+/* Subtle comment dimming in code */
+.cm { color: #606878; }
+.kw { color: #9870d0; }
+.st { color: #78a870; }
 
-  /* Prereqs list */
-  ul, ol { margin: 0 0 16px; padding-left: 24px; }
-  li { margin-bottom: 4px; }
-  li:last-child { margin-bottom: 0; }
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; margin: 14px 0 20px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 480px;
+}
+thead th {
+  background: var(--thead-bg);
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+tbody tr:nth-child(even) td { background: var(--tr-alt); }
 
-  /* Tip box */
-  .tips {
-    background: var(--bg-alt);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 4px 4px 0;
-    padding: 14px 18px;
-    margin-top: 48px;
-  }
-  .tips h2 { margin-top: 0; border: none; padding: 0; font-size: 18px; }
-  .tips ul { margin: 8px 0 0; }
+/* ── Lists ── */
+ul, ol { padding-left: 22px; margin-bottom: 14px; }
+li { margin-bottom: 5px; }
 
-  /* Note callout */
-  .note {
-    background: var(--bg-alt);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-size: 14px;
-    color: var(--text-2);
-    margin: 16px 0 20px;
-  }
+/* ── Footnote ── */
+.footnote { color: var(--muted); font-size: 0.88rem; margin-top: -8px; margin-bottom: 16px; }
 
-  /* Header block */
-  .header { margin-bottom: 40px; }
-  .header h1 { margin-bottom: 4px; }
-  .header-sub {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .stage-line { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--text-2); }
+/* ── Callout ── */
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin: 14px 0 20px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
 
-  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
-  .badges img { height: 20px; }
+/* ── Divider ── */
+hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
 
+/* ── Section accent bar ── */
+.section-tag {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+/* ── Styled docs link ── */
+.docs-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+}
+
+/* ── Output files table — numbered column ── */
+td:first-child { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--muted); }
 </style>
+</head>
+<body>
+<div class="page">
 
-<div class="wrap">
+<!-- Logo -->
+<div class="logo-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200">
+  <defs>
+    <radialGradient id="head" cx="42%" cy="38%" r="62%">
+      <stop offset="0%"   stop-color="#282E40"/>
+      <stop offset="55%"  stop-color="#161C28"/>
+      <stop offset="100%" stop-color="#0C1018"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#08090F"/>
+      <stop offset="100%" stop-color="#0E1220"/>
+    </linearGradient>
+    <linearGradient id="key-nat" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#8C2E18"/>
+      <stop offset="18%"  stop-color="#A83A22"/>
+      <stop offset="50%"  stop-color="#7A2212"/>
+      <stop offset="82%"  stop-color="#9C3620"/>
+      <stop offset="100%" stop-color="#601A0A"/>
+    </linearGradient>
+    <linearGradient id="key-arch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#C04830" stop-opacity="0"/>
+      <stop offset="40%"  stop-color="#C04830" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#C04830" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="key-acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#501408"/>
+      <stop offset="40%"  stop-color="#6A1E0E"/>
+      <stop offset="100%" stop-color="#3C0E06"/>
+    </linearGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#5A6A6A"/>
+      <stop offset="28%"  stop-color="#9AABAB"/>
+      <stop offset="55%"  stop-color="#7A8E8E"/>
+      <stop offset="85%"  stop-color="#4A5858"/>
+      <stop offset="100%" stop-color="#384848"/>
+    </linearGradient>
+    <pattern id="film-strip" x="0" y="0" width="20" height="8" patternUnits="userSpaceOnUse">
+      <rect width="20" height="8" fill="#C08A20"/>
+      <rect x="4.5" y="1.5" width="11" height="5" rx="1" fill="#0A0B12"/>
+    </pattern>
+  </defs>
+  <rect width="880" height="200" fill="url(#bg)"/>
+  <rect x="0" y="0"   width="880" height="8" fill="url(#film-strip)"/>
+  <rect x="0" y="192" width="880" height="8" fill="url(#film-strip)"/>
+  <circle cx="80" cy="100" r="60" fill="#100C06"/>
+  <circle cx="80" cy="100" r="60" fill="none" stroke="#C08A20" stroke-width="5"/>
+  <circle cx="80" cy="100" r="52" fill="url(#head)"/>
+  <circle cx="80" cy="100" r="52" fill="none" stroke="#241A08" stroke-width="2"/>
+  <circle cx="80" cy="100" r="44" fill="none" stroke="#1C2030" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="140" y2="100" stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="122" y2="142" stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="80"  y2="160" stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="38"  y2="142" stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="20"  y2="100" stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="38"  y2="58"  stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="80"  y2="40"  stroke="#1C1608" stroke-width="0.8"/>
+  <line x1="80" y1="100" x2="122" y2="58"  stroke="#1C1608" stroke-width="0.8"/>
+  <circle cx="80" cy="100" r="4"   fill="#C08A20" fill-opacity="0.2"/>
+  <circle cx="80" cy="100" r="2"   fill="#C08A20" fill-opacity="0.55"/>
+  <circle cx="140" cy="100" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="140" cy="100" r="2" fill="#C08A20"/>
+  <circle cx="122" cy="142" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="122" cy="142" r="2" fill="#C08A20"/>
+  <circle cx="80"  cy="160" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="80"  cy="160" r="2" fill="#C08A20"/>
+  <circle cx="38"  cy="142" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="38"  cy="142" r="2" fill="#C08A20"/>
+  <circle cx="20"  cy="100" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="20"  cy="100" r="2" fill="#C08A20"/>
+  <circle cx="38"  cy="58"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="38"  cy="58"  r="2" fill="#C08A20"/>
+  <circle cx="80"  cy="40"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="80"  cy="40"  r="2" fill="#C08A20"/>
+  <circle cx="122" cy="58"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="122" cy="58"  r="2" fill="#C08A20"/>
+  <rect x="152" y="75"  width="166" height="4"  fill="#3A2010" rx="1"/>
+  <rect x="152" y="133" width="166" height="4"  fill="#3A2010" rx="1"/>
+  <rect x="152" y="75"  width="4"   height="62" fill="#3A2010" rx="1"/>
+  <rect x="314" y="75"  width="4"   height="62" fill="#3A2010" rx="1"/>
+  <rect x="156" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="172" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="188" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="204" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="220" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="236" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="252" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="268" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="284" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="300" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
+  <rect x="158" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="174" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="190" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="206" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="222" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="238" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="254" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="270" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="286" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <rect x="302" y="79" width="10" height="53" fill="url(#key-arch)"/>
+  <circle cx="163" cy="91"  r="1.6" fill="#1A0806"/><circle cx="163" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="179" cy="91"  r="1.6" fill="#1A0806"/><circle cx="179" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="195" cy="91"  r="1.6" fill="#1A0806"/><circle cx="195" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="211" cy="91"  r="1.6" fill="#1A0806"/><circle cx="211" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="227" cy="91"  r="1.6" fill="#1A0806"/><circle cx="227" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="243" cy="91"  r="1.6" fill="#1A0806"/><circle cx="243" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="259" cy="91"  r="1.6" fill="#1A0806"/><circle cx="259" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="275" cy="91"  r="1.6" fill="#1A0806"/><circle cx="275" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="291" cy="91"  r="1.6" fill="#1A0806"/><circle cx="291" cy="120" r="1.6" fill="#1A0806"/>
+  <circle cx="307" cy="91"  r="1.6" fill="#1A0806"/><circle cx="307" cy="120" r="1.6" fill="#1A0806"/>
+  <rect x="170" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="186" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="202" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="218" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="234" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="250" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="266" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="282" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="298" y="79" width="2" height="53" fill="#08090F"/>
+  <rect x="160" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="176" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="208" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="224" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="240" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="272" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="288" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
+  <rect x="160" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="176" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="208" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="224" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="240" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="272" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="288" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
+  <rect x="159" y="138" width="8" height="34" fill="url(#tube)" rx="1"/>
+  <rect x="175" y="138" width="8" height="31" fill="url(#tube)" rx="1"/>
+  <rect x="191" y="138" width="8" height="28" fill="url(#tube)" rx="1"/>
+  <rect x="207" y="138" width="8" height="25" fill="url(#tube)" rx="1"/>
+  <rect x="223" y="138" width="8" height="22" fill="url(#tube)" rx="1"/>
+  <rect x="239" y="138" width="8" height="19" fill="url(#tube)" rx="1"/>
+  <rect x="255" y="138" width="8" height="17" fill="url(#tube)" rx="1"/>
+  <rect x="271" y="138" width="8" height="15" fill="url(#tube)" rx="1"/>
+  <rect x="287" y="138" width="8" height="13" fill="url(#tube)" rx="1"/>
+  <rect x="303" y="138" width="8" height="11" fill="url(#tube)" rx="1"/>
+  <rect x="159" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="175" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="191" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="207" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="223" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="239" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="255" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="271" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="287" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <rect x="303" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
+  <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="7" stroke-opacity="0.10"/>
+  <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="1.5"/>
+  <polygon points="328,8   340,8   334,18"  fill="#C08A20"/>
+  <polygon points="328,192 340,192 334,182" fill="#C08A20"/>
+  <text x="354" y="134" font-family="Impact, 'Arial Black', Arial, sans-serif" font-size="96" fill="#FFFFFF" letter-spacing="2">WGI</text>
+  <line x1="356" y1="147" x2="618" y2="147" stroke="#C08A20" stroke-width="1.5" stroke-opacity="0.4"/>
+  <text x="360" y="167" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#C08A20" letter-spacing="8">VIDEO-SYNC</text>
+  <text x="361" y="184" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#283048" letter-spacing="2.5">COMPETITION RECORDING PIPELINE</text>
+  <circle cx="851" cy="52" r="26" fill="#C08A20" fill-opacity="0.09" stroke="#C08A20" stroke-opacity="0.50" stroke-width="1.8"/>
+  <polygon points="843,40 843,64 868,52" fill="#C08A20" fill-opacity="0.70"/>
+  <rect x="820" y="84" width="62" height="40" rx="2" fill="#0C0E18" stroke="#C08A20" stroke-width="1" stroke-opacity="0.35"/>
+  <rect x="820" y="84" width="9" height="40" fill="#0A0B12"/>
+  <rect x="822" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="822" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="873" y="84" width="9" height="40" fill="#0A0B12"/>
+  <rect x="875" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <rect x="875" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
+  <line x1="849" y1="84" x2="849" y2="124" stroke="#C08A20" stroke-width="0.7" stroke-opacity="0.25"/>
+  <rect x="831" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="852" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="831" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+  <rect x="852" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
+</svg>
+</div>
 
-  <div class="logo-banner">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200">
-      <defs>
-        <radialGradient id="head" cx="42%" cy="38%" r="62%">
-          <stop offset="0%"   stop-color="#282E40"/>
-          <stop offset="55%"  stop-color="#161C28"/>
-          <stop offset="100%" stop-color="#0C1018"/>
-        </radialGradient>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#08090F"/>
-          <stop offset="100%" stop-color="#0E1220"/>
-        </linearGradient>
-        <linearGradient id="key-nat" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#8C2E18"/>
-          <stop offset="18%"  stop-color="#A83A22"/>
-          <stop offset="50%"  stop-color="#7A2212"/>
-          <stop offset="82%"  stop-color="#9C3620"/>
-          <stop offset="100%" stop-color="#601A0A"/>
-        </linearGradient>
-        <linearGradient id="key-arch" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stop-color="#C04830" stop-opacity="0"/>
-          <stop offset="40%"  stop-color="#C04830" stop-opacity="0.22"/>
-          <stop offset="100%" stop-color="#C04830" stop-opacity="0"/>
-        </linearGradient>
-        <linearGradient id="key-acc" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#501408"/>
-          <stop offset="40%"  stop-color="#6A1E0E"/>
-          <stop offset="100%" stop-color="#3C0E06"/>
-        </linearGradient>
-        <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stop-color="#5A6A6A"/>
-          <stop offset="28%"  stop-color="#9AABAB"/>
-          <stop offset="55%"  stop-color="#7A8E8E"/>
-          <stop offset="85%"  stop-color="#4A5858"/>
-          <stop offset="100%" stop-color="#384848"/>
-        </linearGradient>
-        <pattern id="film-strip" x="0" y="0" width="20" height="8" patternUnits="userSpaceOnUse">
-          <rect width="20" height="8" fill="#C08A20"/>
-          <rect x="4.5" y="1.5" width="11" height="5" rx="1" fill="#0A0B12"/>
-        </pattern>
-      </defs>
-      <rect width="880" height="200" fill="url(#bg)"/>
-      <rect x="0" y="0"   width="880" height="8" fill="url(#film-strip)"/>
-      <rect x="0" y="192" width="880" height="8" fill="url(#film-strip)"/>
-      <circle cx="80" cy="100" r="60" fill="#100C06"/>
-      <circle cx="80" cy="100" r="60" fill="none" stroke="#C08A20" stroke-width="5"/>
-      <circle cx="80" cy="100" r="52" fill="url(#head)"/>
-      <circle cx="80" cy="100" r="52" fill="none" stroke="#241A08" stroke-width="2"/>
-      <circle cx="80" cy="100" r="44" fill="none" stroke="#1C2030" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="140" y2="100" stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="122" y2="142" stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="80"  y2="160" stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="38"  y2="142" stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="20"  y2="100" stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="38"  y2="58"  stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="80"  y2="40"  stroke="#1C1608" stroke-width="0.8"/>
-      <line x1="80" y1="100" x2="122" y2="58"  stroke="#1C1608" stroke-width="0.8"/>
-      <circle cx="80" cy="100" r="4" fill="#C08A20" fill-opacity="0.2"/>
-      <circle cx="80" cy="100" r="2" fill="#C08A20" fill-opacity="0.55"/>
-      <circle cx="140" cy="100" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="140" cy="100" r="2" fill="#C08A20"/>
-      <circle cx="122" cy="142" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="122" cy="142" r="2" fill="#C08A20"/>
-      <circle cx="80"  cy="160" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="80"  cy="160" r="2" fill="#C08A20"/>
-      <circle cx="38"  cy="142" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="38"  cy="142" r="2" fill="#C08A20"/>
-      <circle cx="20"  cy="100" r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="20"  cy="100" r="2" fill="#C08A20"/>
-      <circle cx="38"  cy="58"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="38"  cy="58"  r="2" fill="#C08A20"/>
-      <circle cx="80"  cy="40"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="80"  cy="40"  r="2" fill="#C08A20"/>
-      <circle cx="122" cy="58"  r="5" fill="#1A1506" stroke="#C08A20" stroke-width="1.3"/><circle cx="122" cy="58"  r="2" fill="#C08A20"/>
-      <rect x="152" y="75"  width="166" height="4"  fill="#3A2010" rx="1"/>
-      <rect x="152" y="133" width="166" height="4"  fill="#3A2010" rx="1"/>
-      <rect x="152" y="75"  width="4"   height="62" fill="#3A2010" rx="1"/>
-      <rect x="314" y="75"  width="4"   height="62" fill="#3A2010" rx="1"/>
-      <rect x="156" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="172" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="188" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="204" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="220" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="236" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="252" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="268" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="284" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="300" y="79" width="14" height="53" fill="url(#key-nat)" rx="1"/>
-      <rect x="158" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="174" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="190" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="206" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="222" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="238" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="254" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="270" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="286" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <rect x="302" y="79" width="10" height="53" fill="url(#key-arch)"/>
-      <circle cx="163" cy="91"  r="1.6" fill="#1A0806"/><circle cx="163" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="179" cy="91"  r="1.6" fill="#1A0806"/><circle cx="179" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="195" cy="91"  r="1.6" fill="#1A0806"/><circle cx="195" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="211" cy="91"  r="1.6" fill="#1A0806"/><circle cx="211" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="227" cy="91"  r="1.6" fill="#1A0806"/><circle cx="227" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="243" cy="91"  r="1.6" fill="#1A0806"/><circle cx="243" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="259" cy="91"  r="1.6" fill="#1A0806"/><circle cx="259" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="275" cy="91"  r="1.6" fill="#1A0806"/><circle cx="275" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="291" cy="91"  r="1.6" fill="#1A0806"/><circle cx="291" cy="120" r="1.6" fill="#1A0806"/>
-      <circle cx="307" cy="91"  r="1.6" fill="#1A0806"/><circle cx="307" cy="120" r="1.6" fill="#1A0806"/>
-      <rect x="170" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="186" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="202" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="218" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="234" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="250" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="266" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="282" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="298" y="79" width="2" height="53" fill="#08090F"/>
-      <rect x="160" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="176" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="208" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="224" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="240" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="272" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="288" y="79" width="10" height="32" fill="url(#key-acc)" rx="1"/>
-      <rect x="160" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="176" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="208" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="224" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="240" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="272" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="288" y="79" width="10" height="2" fill="#7A2A18" rx="1"/>
-      <rect x="159" y="138" width="8" height="34" fill="url(#tube)" rx="1"/>
-      <rect x="175" y="138" width="8" height="31" fill="url(#tube)" rx="1"/>
-      <rect x="191" y="138" width="8" height="28" fill="url(#tube)" rx="1"/>
-      <rect x="207" y="138" width="8" height="25" fill="url(#tube)" rx="1"/>
-      <rect x="223" y="138" width="8" height="22" fill="url(#tube)" rx="1"/>
-      <rect x="239" y="138" width="8" height="19" fill="url(#tube)" rx="1"/>
-      <rect x="255" y="138" width="8" height="17" fill="url(#tube)" rx="1"/>
-      <rect x="271" y="138" width="8" height="15" fill="url(#tube)" rx="1"/>
-      <rect x="287" y="138" width="8" height="13" fill="url(#tube)" rx="1"/>
-      <rect x="303" y="138" width="8" height="11" fill="url(#tube)" rx="1"/>
-      <rect x="159" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="175" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="191" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="207" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="223" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="239" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="255" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="271" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="287" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <rect x="303" y="138" width="8" height="2" fill="#B8C8C8" rx="1"/>
-      <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="7" stroke-opacity="0.10"/>
-      <line x1="334" y1="8"   x2="334" y2="192" stroke="#C08A20" stroke-width="1.5"/>
-      <polygon points="328,8 340,8 334,18"    fill="#C08A20"/>
-      <polygon points="328,192 340,192 334,182" fill="#C08A20"/>
-      <text x="354" y="134" font-family="Impact,'Arial Black',Arial,sans-serif" font-size="96" fill="#FFFFFF" letter-spacing="2">WGI</text>
-      <line x1="356" y1="147" x2="618" y2="147" stroke="#C08A20" stroke-width="1.5" stroke-opacity="0.4"/>
-      <text x="360" y="167" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#C08A20" letter-spacing="8">VIDEO-SYNC</text>
-      <text x="361" y="184" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#283048" letter-spacing="2.5">COMPETITION RECORDING PIPELINE</text>
-      <circle cx="851" cy="52" r="26" fill="#C08A20" fill-opacity="0.09" stroke="#C08A20" stroke-opacity="0.50" stroke-width="1.8"/>
-      <polygon points="843,40 843,64 868,52" fill="#C08A20" fill-opacity="0.70"/>
-      <rect x="820" y="84" width="62" height="40" rx="2" fill="#0C0E18" stroke="#C08A20" stroke-width="1" stroke-opacity="0.35"/>
-      <rect x="820" y="84" width="9" height="40" fill="#0A0B12"/>
-      <rect x="822" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="822" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="822" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="822" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="873" y="84" width="9" height="40" fill="#0A0B12"/>
-      <rect x="875" y="88"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="875" y="96"  width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="875" y="104" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <rect x="875" y="112" width="5" height="4" rx="0.8" fill="#C08A20" fill-opacity="0.55"/>
-      <line x1="849" y1="84" x2="849" y2="124" stroke="#C08A20" stroke-width="0.7" stroke-opacity="0.25"/>
-      <rect x="831" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
-      <rect x="852" y="88"  width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
-      <rect x="831" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
-      <rect x="852" y="106" width="16" height="14" rx="1" fill="#1A2030" stroke="#C08A20" stroke-width="0.4" stroke-opacity="0.2"/>
-    </svg>
-  </div>
+<!-- Title & badges -->
+<h1>wgi-video-sync</h1>
 
-  <div class="header">
-    <h1>wgi-video-sync</h1>
-<div class="badges"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDkiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0icHl0aG9uOiAzLjEwKyI+PHRpdGxlPnB5dGhvbjogMy4xMCs8L3RpdGxlPjxmaWx0ZXIgaWQ9ImJsdXIiPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE2Ii8+PC9maWx0ZXI+PGxpbmVhckdyYWRpZW50IGlkPSJzIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PGNsaXBQYXRoIGlkPSJyIj48cmVjdCB3aWR0aD0iMTA5IiBoZWlnaHQ9IjIwIiByeD0iMyIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI3IpIj48cmVjdCB3aWR0aD0iNjYiIGhlaWdodD0iMjAiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSI2NiIgd2lkdGg9IjQzIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMDA3ZWM2Ii8+PHJlY3Qgd2lkdGg9IjEwOSIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjxpbWFnZSB4PSI1IiB5PSIzIiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGhyZWY9ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5Qm1hV3hzUFNKM2FHbDBaU0lnY205c1pUMGlhVzFuSWlCMmFXVjNRbTk0UFNJd0lEQWdNalFnTWpRaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK1BIUnBkR3hsUGxCNWRHaHZiand2ZEdsMGJHVStQSEJoZEdnZ1pEMGlUVEUwTGpJMUxqRTRiQzQ1TGpJdU56TXVNall1TlRrdU15NDBOUzR6TWk0ek5DNHpOQzR5TlM0ek5DNHhOaTR6TXk0eExqTXVNRFF1TWpZdU1ESXVNaTB1TURFdU1UTldPQzQxYkMwdU1EVXVOak10TGpFekxqVTFMUzR5TVM0ME5pMHVNall1TXpndExqTXVNekV0TGpNekxqSTFMUzR6TlM0eE9TMHVNelV1TVRRdExqTXpMakV0TGpNdU1EY3RMakkyTGpBMExTNHlNUzR3TWtnNExqYzNiQzB1TmprdU1EVXRMalU1TGpFMExTNDFMakl5TFM0ME1TNHlOeTB1TXpNdU16SXRMakkzTGpNMUxTNHlMak0yTFM0eE5TNHpOeTB1TVM0ek5TMHVNRGN1TXpJdExqQTBMakkzTFM0d01pNHlNWFl6TGpBMlNETXVNVGRzTFM0eU1TMHVNRE10TGpJNExTNHdOeTB1TXpJdExqRXlMUzR6TlMwdU1UZ3RMak0yTFM0eU5pMHVNell0TGpNMkxTNHpOUzB1TkRZdExqTXlMUzQxT1MwdU1qZ3RMamN6TFM0eU1TMHVPRGd0TGpFMExURXVNRFV0TGpBMUxURXVNak11TURZdE1TNHlNaTR4TmkweExqQTBMakkwTFM0NE55NHpNaTB1TnpFdU16WXRMalUzTGpRdExqUTBMalF5TFM0ek15NDBNaTB1TWpRdU5DMHVNVFl1TXpZdExqRXVNekl0TGpBMUxqSTBMUzR3TVdndU1UWnNMakEyTGpBeGFEZ3VNVFoyTFM0NE0wZzJMakU0YkMwdU1ERXRNaTQzTlMwdU1ESXRMak0zTGpBMUxTNHpOQzR4TVMwdU16RXVNVGN0TGpJNExqSTFMUzR5Tmk0ek1TMHVNak11TXpndExqSXVORFF0TGpFNExqVXhMUzR4TlM0MU9DMHVNVEl1TmpRdExqRXVOekV0TGpBMkxqYzNMUzR3TkM0NE5DMHVNRElnTVM0eU55NHdOWHB0TFRZdU15QXhMams0YkMwdU1qTXVNek10TGpBNExqUXhMakE0TGpReExqSXpMak0wTGpNekxqSXlMalF4TGpBNUxqUXhMUzR3T1M0ek15MHVNakl1TWpNdExqTTBMakE0TFM0ME1TMHVNRGd0TGpReExTNHlNeTB1TXpNdExqTXpMUzR5TWkwdU5ERXRMakE1TFM0ME1TNHdPWHB0TVRNdU1Ea2dNeTQ1Tld3dU1qZ3VNRFl1TXpJdU1USXVNelV1TVRndU16WXVNamN1TXpZdU16VXVNelV1TkRjdU16SXVOVGt1TWpndU56TXVNakV1T0RndU1UUWdNUzR3TkM0d05TQXhMakl6TFM0d05pQXhMakl6TFM0eE5pQXhMakEwTFM0eU5DNDROaTB1TXpJdU56RXRMak0yTGpVM0xTNDBMalExTFM0ME1pNHpNeTB1TkRJdU1qUXRMalF1TVRZdExqTTJMakE1TFM0ek1pNHdOUzB1TWpRdU1ESXRMakUyTFM0d01XZ3RPQzR5TW5ZdU9ESm9OUzQ0Tkd3dU1ERWdNaTQzTmk0d01pNHpOaTB1TURVdU16UXRMakV4TGpNeExTNHhOeTR5T1MwdU1qVXVNalV0TGpNeExqSTBMUzR6T0M0eUxTNDBOQzR4TnkwdU5URXVNVFV0TGpVNExqRXpMUzQyTkM0d09TMHVOekV1TURjdExqYzNMakEwTFM0NE5DNHdNUzB4TGpJM0xTNHdOQzB4TGpBM0xTNHhOQzB1T1MwdU1pMHVOek10TGpJMUxTNDFPUzB1TXkwdU5EVXRMak16TFM0ek5DMHVNelF0TGpJMUxTNHpOQzB1TVRZdExqTXpMUzR4TFM0ekxTNHdOQzB1TWpVdExqQXlMUzR5TGpBeExTNHhNM1l0TlM0ek5Hd3VNRFV0TGpZMExqRXpMUzQxTkM0eU1TMHVORFl1TWpZdExqTTRMak10TGpNeUxqTXpMUzR5TkM0ek5TMHVNaTR6TlMwdU1UUXVNek10TGpFdU15MHVNRFl1TWpZdExqQTBMakl4TFM0d01pNHhNeTB1TURGb05TNDROR3d1TmprdExqQTFMalU1TFM0eE5DNDFMUzR5TVM0ME1TMHVNamd1TXpNdExqTXlMakkzTFM0ek5TNHlMUzR6Tmk0eE5TMHVNell1TVMwdU16VXVNRGN0TGpNeUxqQTBMUzR5T0M0d01pMHVNakZXTmk0d04yZ3lMakE1YkM0eE5DNHdNWHB0TFRZdU5EY2dNVFF1TWpWc0xTNHlNeTR6TXkwdU1EZ3VOREV1TURndU5ERXVNak11TXpNdU16TXVNak11TkRFdU1EZ3VOREV0TGpBNExqTXpMUzR5TXk0eU15MHVNek11TURndExqUXhMUzR3T0MwdU5ERXRMakl6TFM0ek15MHVNek10TGpJekxTNDBNUzB1TURndExqUXhMakE0ZWlJdlBqd3ZjM1puUGc9PSIvPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iNDI1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iMzkwIj5weXRob248L3RleHQ+PHRleHQgeD0iNDI1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjMiIHRleHRMZW5ndGg9IjM5MCI+cHl0aG9uPC90ZXh0PjwvZz48dGV4dCB4PSI0MjUiIHk9IjE0MCIgdGV4dExlbmd0aD0iMzkwIj5weXRob248L3RleHQ+PC9nPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iODY1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iMzMwIj4zLjEwKzwvdGV4dD48dGV4dCB4PSI4NjUiIHk9IjE1MCIgZmlsbC1vcGFjaXR5PSIuMyIgdGV4dExlbmd0aD0iMzMwIj4zLjEwKzwvdGV4dD48L2c+PHRleHQgeD0iODY1IiB5PSIxNDAiIHRleHRMZW5ndGg9IjMzMCI+My4xMCs8L3RleHQ+PC9nPjwvZz48L3N2Zz4=" alt="Python"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjMiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iZmZtcGVnOiByZXF1aXJlZCI+PHRpdGxlPmZmbXBlZzogcmVxdWlyZWQ8L3RpdGxlPjxmaWx0ZXIgaWQ9ImJsdXIiPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE2Ii8+PC9maWx0ZXI+PGxpbmVhckdyYWRpZW50IGlkPSJzIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PGNsaXBQYXRoIGlkPSJyIj48cmVjdCB3aWR0aD0iMTIzIiBoZWlnaHQ9IjIwIiByeD0iMyIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI3IpIj48cmVjdCB3aWR0aD0iNjYiIGhlaWdodD0iMjAiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSI2NiIgd2lkdGg9IjU3IiBoZWlnaHQ9IjIwIiBmaWxsPSJkYXJrZ3JlZW4iLz48cmVjdCB3aWR0aD0iMTIzIiBoZWlnaHQ9IjIwIiBmaWxsPSJ1cmwoI3MpIi8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjExMCI+PGltYWdlIHg9IjUiIHk9IjMiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgaHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0ozYUdsMFpTSWdjbTlzWlQwaWFXMW5JaUIyYVdWM1FtOTRQU0l3SURBZ01qUWdNalFpSUhodGJHNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEhScGRHeGxQa1pHYlhCbFp6d3ZkR2wwYkdVK1BIQmhkR2dnWkQwaVRUSXhMamN5SURFM0xqa3hWall1Tld3dExqVXpMUzQwT1V3NUxqQTFJREU0TGpVeWJDMHhMakk1TFM0d05rd3lOQ0F4TGpVemJDMHVNek10TGprMUxURXhMamt6SURFdE5TNDNOU0EyTGpaMkxTNHlNMncwTGpjdE5TNHpPUzB4TGpNNExTNDNOeTA1TGpFeExqYzNkakl1T0RWc01TNDVNUzQwTm5ZdU1ERnNMakU1TFM0d01TMHVOVFl1TmpaMk1UQXVObU11TmpBNUxTNHhNallnTVM0eU1pMHVNalF4SURFdU9ETXRMak0yVERFMExqRXlJRFV1TWpKc0xqZ3pMUzR3TkV3d0lESXhMalEwYkRrdU5qY3VPRElnTVM0ek5TMHVOemNnTmk0NE1pMDJMamMwZGpJdU1UVnNMVFV1TnpJZ05TNDFOeUF4TVM0eU5pNDVOUzR6TlMwdU9UUjJMVE11TVRac0xUTXVNamt0TGpFNFl5NDBNelF0TGpRd015NDROVGd0TGpneE5pQXhMakk0TFRFdU1qTjZJaTgrUEM5emRtYysiLz48ZyB0cmFuc2Zvcm09InNjYWxlKC4xKSI+PGcgYXJpYS1oaWRkZW49InRydWUiIGZpbGw9IiMwMTAxMDEiPjx0ZXh0IHg9IjQyNSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii44IiBmaWx0ZXI9InVybCgjYmx1cikiIHRleHRMZW5ndGg9IjM5MCI+ZmZtcGVnPC90ZXh0Pjx0ZXh0IHg9IjQyNSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSIzOTAiPmZmbXBlZzwvdGV4dD48L2c+PHRleHQgeD0iNDI1IiB5PSIxNDAiIHRleHRMZW5ndGg9IjM5MCI+ZmZtcGVnPC90ZXh0PjwvZz48ZyB0cmFuc2Zvcm09InNjYWxlKC4xKSI+PGcgYXJpYS1oaWRkZW49InRydWUiIGZpbGw9IiMwMTAxMDEiPjx0ZXh0IHg9IjkzNSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii44IiBmaWx0ZXI9InVybCgjYmx1cikiIHRleHRMZW5ndGg9IjQ3MCI+cmVxdWlyZWQ8L3RleHQ+PHRleHQgeD0iOTM1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjMiIHRleHRMZW5ndGg9IjQ3MCI+cmVxdWlyZWQ8L3RleHQ+PC9nPjx0ZXh0IHg9IjkzNSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSI0NzAiPnJlcXVpcmVkPC90ZXh0PjwvZz48L2c+PC9zdmc+" alt="ffmpeg"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODciIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iZG9ja2VyIHwgcG9kbWFuOiBzdXBwb3J0ZWQiPjx0aXRsZT5kb2NrZXIgfCBwb2RtYW46IHN1cHBvcnRlZDwvdGl0bGU+PGZpbHRlciBpZD0iYmx1ciI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTYiLz48L2ZpbHRlcj48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSIxODciIGhlaWdodD0iMjAiIHJ4PSIzIi8+PC9jbGlwUGF0aD48ZyBjbGlwLXBhdGg9InVybCgjcikiPjxyZWN0IHdpZHRoPSIxMjIiIGhlaWdodD0iMjAiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSIxMjIiIHdpZHRoPSI2NSIgaGVpZ2h0PSIyMCIgZmlsbD0iIzI0OTZlZCIvPjxyZWN0IHdpZHRoPSIxODciIGhlaWdodD0iMjAiIGZpbGw9InVybCgjcykiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IlZlcmRhbmEsR2VuZXZhLERlamFWdSBTYW5zLHNhbnMtc2VyaWYiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGZvbnQtc2l6ZT0iMTEwIj48aW1hZ2UgeD0iNSIgeT0iMyIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiBocmVmPSJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUJtYVd4c1BTSjNhR2wwWlNJZ2NtOXNaVDBpYVcxbklpQjJhV1YzUW05NFBTSXdJREFnTWpRZ01qUWlJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQSFJwZEd4bFBrUnZZMnRsY2p3dmRHbDBiR1UrUEhCaGRHZ2daRDBpVFRFekxqazRNeUF4TVM0d056aG9NaTR4TVRsaExqRTROaTR4T0RZZ01DQXdNQzR4T0RZdExqRTROVlk1TGpBd05tRXVNVGcyTGpFNE5pQXdJREF3TFM0eE9EWXRMakU0Tm1ndE1pNHhNVGxoTGpFNE5TNHhPRFVnTUNBd01DMHVNVGcxTGpFNE5YWXhMamc0T0dNd0lDNHhNREl1TURnekxqRTROUzR4T0RVdU1UZzFiUzB5TGprMU5DMDFMalF6YURJdU1URTRZUzR4T0RZdU1UZzJJREFnTURBdU1UZzJMUzR4T0RaV015NDFOelJoTGpFNE5pNHhPRFlnTUNBd01DMHVNVGcyTFM0eE9EVm9MVEl1TVRFNFlTNHhPRFV1TVRnMUlEQWdNREF0TGpFNE5TNHhPRFYyTVM0NE9EaGpNQ0F1TVRBeUxqQTRNaTR4T0RVdU1UZzFMakU0Tlcwd0lESXVOekUyYURJdU1URTRZUzR4T0RjdU1UZzNJREFnTURBdU1UZzJMUzR4T0RaV05pNHlPV0V1TVRnMkxqRTROaUF3SURBd0xTNHhPRFl0TGpFNE5XZ3RNaTR4TVRoaExqRTROUzR4T0RVZ01DQXdNQzB1TVRnMUxqRTROWFl4TGpnNE4yTXdJQzR4TURJdU1EZ3lMakU0TlM0eE9EVXVNVGcyYlMweUxqa3pJREJvTWk0eE1tRXVNVGcyTGpFNE5pQXdJREF3TGpFNE5DMHVNVGcyVmpZdU1qbGhMakU0TlM0eE9EVWdNQ0F3TUMwdU1UZzFMUzR4T0RWSU9DNHhZUzR4T0RVdU1UZzFJREFnTURBdExqRTROUzR4T0RWMk1TNDRPRGRqTUNBdU1UQXlMakE0TXk0eE9EVXVNVGcxTGpFNE5tMHRNaTQ1TmpRZ01HZ3lMakV4T1dFdU1UZzJMakU0TmlBd0lEQXdMakU0TlMwdU1UZzJWall1TWpsaExqRTROUzR4T0RVZ01DQXdNQzB1TVRnMUxTNHhPRFZJTlM0eE16WmhMakU0Tmk0eE9EWWdNQ0F3TUMwdU1UZzJMakU0TlhZeExqZzROMk13SUM0eE1ESXVNRGcwTGpFNE5TNHhPRFl1TVRnMmJUVXVPRGt6SURJdU56RTFhREl1TVRFNFlTNHhPRFl1TVRnMklEQWdNREF1TVRnMkxTNHhPRFZXT1M0d01EWmhMakU0Tmk0eE9EWWdNQ0F3TUMwdU1UZzJMUzR4T0Rab0xUSXVNVEU0WVM0eE9EVXVNVGcxSURBZ01EQXRMakU0TlM0eE9EVjJNUzQ0T0Roak1DQXVNVEF5TGpBNE1pNHhPRFV1TVRnMUxqRTROVzB0TWk0NU15QXdhREl1TVRKaExqRTROUzR4T0RVZ01DQXdNQzR4T0RRdExqRTROVlk1TGpBd05tRXVNVGcxTGpFNE5TQXdJREF3TFM0eE9EUXRMakU0Tm1ndE1pNHhNbUV1TVRnMUxqRTROU0F3SURBd0xTNHhPRFF1TVRnMWRqRXVPRGc0WXpBZ0xqRXdNaTR3T0RNdU1UZzFMakU0TlM0eE9EVnRMVEl1T1RZMElEQm9NaTR4TVRsaExqRTROUzR4T0RVZ01DQXdNQzR4T0RVdExqRTROVlk1TGpBd05tRXVNVGcxTGpFNE5TQXdJREF3TFM0eE9EUXRMakU0Tm1ndE1pNHhNbUV1TVRnMkxqRTROaUF3SURBd0xTNHhPRFl1TVRnMmRqRXVPRGczWXpBZ0xqRXdNaTR3T0RRdU1UZzFMakU0Tmk0eE9EVnRMVEl1T1RJZ01HZ3lMakV5WVM0eE9EVXVNVGcxSURBZ01EQXVNVGcwTFM0eE9EVldPUzR3TURaaExqRTROUzR4T0RVZ01DQXdNQzB1TVRnMExTNHhPRFpvTFRJdU1USmhMakU0TlM0eE9EVWdNQ0F3TUMwdU1UZzBMakU0TlhZeExqZzRPR013SUM0eE1ESXVNRGd5TGpFNE5TNHhPRFV1TVRnMVRUSXpMamMyTXlBNUxqZzVZeTB1TURZMUxTNHdOVEV0TGpZM01pMHVOVEV0TVM0NU5UUXRMalV4TFM0ek16Z3VNREF4TFM0Mk56WXVNRE10TVM0d01TNHdPRGN0TGpJME9DMHhMamN0TVM0Mk5UTXRNaTQxTXkweExqY3hOaTB5TGpVMk5td3RMak0wTkMwdU1UazVMUzR5TWpZdU16STNZeTB1TWpnMExqUXpPQzB1TkRrdU9USXlMUzQyTVRJZ01TNDBNeTB1TWpNdU9UY3RMakE1SURFdU9EZ3lMalF3TXlBeUxqWTJNUzB1TlRrMUxqTXpNaTB4TGpVMUxqUXhNeTB4TGpjME5DNDBNa2d1TnpVeFlTNDNOVEV1TnpVeElEQWdNREF0TGpjMUxqYzBPQ0F4TVM0ek56WWdNVEV1TXpjMklEQWdNREF1TmpreUlEUXVNRFl5WXk0MU5EVWdNUzQwTWpnZ01TNHpOVFVnTWk0ME9DQXlMalF4SURNdU1USTBJREV1TVRndU56SXpJRE11TVNBeExqRXpOeUExTGpJM05TQXhMakV6Tnk0NU9ETXVNREF6SURFdU9UWXpMUzR3T0RZZ01pNDVNeTB1TWpZMllURXlMakkwT0NBeE1pNHlORGdnTUNBd01ETXVPREl6TFRFdU16ZzVZeTQ1T0MwdU5UWTNJREV1T0RZdE1TNHlPRGdnTWk0Mk1TMHlMakV6TmlBeExqSTFNaTB4TGpReE9DQXhMams1T0MweUxqazVOeUF5TGpVMU15MDBMalJvTGpJeU1XTXhMak0zTWlBd0lESXVNakUxTFM0MU5Ea2dNaTQyT0MweExqQXdPUzR6TURrdExqSTVNeTQxTlMwdU5qVXVOekEzTFRFdU1EUTJiQzR3T1RndExqSTRPRm9pTHo0OEwzTjJaejQ9Ii8+PGcgdHJhbnNmb3JtPSJzY2FsZSguMSkiPjxnIGFyaWEtaGlkZGVuPSJ0cnVlIiBmaWxsPSIjMDEwMTAxIj48dGV4dCB4PSI3MDUiIHk9IjE1MCIgZmlsbC1vcGFjaXR5PSIuOCIgZmlsdGVyPSJ1cmwoI2JsdXIpIiB0ZXh0TGVuZ3RoPSI5NTAiPmRvY2tlciB8IHBvZG1hbjwvdGV4dD48dGV4dCB4PSI3MDUiIHk9IjE1MCIgZmlsbC1vcGFjaXR5PSIuMyIgdGV4dExlbmd0aD0iOTUwIj5kb2NrZXIgfCBwb2RtYW48L3RleHQ+PC9nPjx0ZXh0IHg9IjcwNSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSI5NTAiPmRvY2tlciB8IHBvZG1hbjwvdGV4dD48L2c+PGcgdHJhbnNmb3JtPSJzY2FsZSguMSkiPjxnIGFyaWEtaGlkZGVuPSJ0cnVlIiBmaWxsPSIjMDEwMTAxIj48dGV4dCB4PSIxNTM1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iNTUwIj5zdXBwb3J0ZWQ8L3RleHQ+PHRleHQgeD0iMTUzNSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSI1NTAiPnN1cHBvcnRlZDwvdGV4dD48L2c+PHRleHQgeD0iMTUzNSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSI1NTAiPnN1cHBvcnRlZDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" alt="Docker"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjMiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0idGVzdHM6IDI4IHBhc3NpbmciPjx0aXRsZT50ZXN0czogMjggcGFzc2luZzwvdGl0bGU+PGZpbHRlciBpZD0iYmx1ciI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTYiLz48L2ZpbHRlcj48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSIxMjMiIGhlaWdodD0iMjAiIHJ4PSIzIi8+PC9jbGlwUGF0aD48ZyBjbGlwLXBhdGg9InVybCgjcikiPjxyZWN0IHdpZHRoPSI1NCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjU0IiB3aWR0aD0iNjkiIGhlaWdodD0iMjAiIGZpbGw9IiM0YjAiLz48cmVjdCB3aWR0aD0iMTIzIiBoZWlnaHQ9IjIwIiBmaWxsPSJ1cmwoI3MpIi8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjExMCI+PGltYWdlIHg9IjUiIHk9IjMiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgaHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0ozYUdsMFpTSWdjbTlzWlQwaWFXMW5JaUIyYVdWM1FtOTRQU0l3SURBZ01qUWdNalFpSUhodGJHNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEhScGRHeGxQbEI1ZEdWemREd3ZkR2wwYkdVK1BIQmhkR2dnWkQwaVRUSXVOakUxTWlBd2RpNDRPRFkzYURNdU9ETTVPVll3ZW0wMUxqQXlNVFVnTUhZdU9EZzJOMmd6TGpnME1UaFdNSHB0TkM0NU5UY2dNSFl1T0RnMk4yZ3pMamcwTVRoV01IcHROQzQ1TXpVMklEQjJMamc0Tmpkb015NDROREU0VmpCNlRUSXVORFEzTXlBeExqZzVORFZoTGprek5TNDVNelVnTUNBd0lEQXRMamt6TlRZdU9UTTFObU13SUM0MU1UY3VOREU0TlM0NU16YzFMamt6TlRZdU9UTTNOV2d4T1M0eE1EVTBZeTQxTVRjeElEQWdMamt6TlRZdExqUXlNRFF1T1RNMU5pMHVPVE0zTldFdU9UTTFMamt6TlNBd0lEQWdNQzB1T1RNMU5pMHVPVE0xTm5wdExqRTJPQ0F5TGpnME56ZFdNalJJTmk0ME5UVldOQzQzTkRJeWVtMDFMakF5TVRRZ01GWXlNQzQxTkROb015NDROREU0VmpRdU56UXlNbnB0TkM0NU5UY2dNRll4TlM0eU9URm9NeTQ0TkRrM1ZqUXVOelF5TW5wdE5DNDVNelUySURCMk5pNDBPVFF4YURNdU9EUXhPRlkwTGpjME1qSjZJaTgrUEM5emRtYysiLz48ZyB0cmFuc2Zvcm09InNjYWxlKC4xKSI+PGcgYXJpYS1oaWRkZW49InRydWUiIGZpbGw9IiMwMTAxMDEiPjx0ZXh0IHg9IjM2NSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii44IiBmaWx0ZXI9InVybCgjYmx1cikiIHRleHRMZW5ndGg9IjI3MCI+dGVzdHM8L3RleHQ+PHRleHQgeD0iMzY1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjMiIHRleHRMZW5ndGg9IjI3MCI+dGVzdHM8L3RleHQ+PC9nPjx0ZXh0IHg9IjM2NSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSIyNzAiPnRlc3RzPC90ZXh0PjwvZz48ZyB0cmFuc2Zvcm09InNjYWxlKC4xKSI+PGcgYXJpYS1oaWRkZW49InRydWUiIGZpbGw9IiMwMTAxMDEiPjx0ZXh0IHg9Ijg3NSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii44IiBmaWx0ZXI9InVybCgjYmx1cikiIHRleHRMZW5ndGg9IjU5MCI+MjggcGFzc2luZzwvdGV4dD48dGV4dCB4PSI4NzUiIHk9IjE1MCIgZmlsbC1vcGFjaXR5PSIuMyIgdGV4dExlbmd0aD0iNTkwIj4yOCBwYXNzaW5nPC90ZXh0PjwvZz48dGV4dCB4PSI4NzUiIHk9IjE0MCIgdGV4dExlbmd0aD0iNTkwIj4yOCBwYXNzaW5nPC90ZXh0PjwvZz48L2c+PC9zdmc+" alt="Tests"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSIyMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJsaWNlbnNlOiBwcml2YXRlIj48dGl0bGU+bGljZW5zZTogcHJpdmF0ZTwvdGl0bGU+PGZpbHRlciBpZD0iYmx1ciI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTYiLz48L2ZpbHRlcj48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSIyMCIgcng9IjMiLz48L2NsaXBQYXRoPjxnIGNsaXAtcGF0aD0idXJsKCNyKSI+PHJlY3Qgd2lkdGg9IjQ3IiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iNDciIHdpZHRoPSI0OSIgaGVpZ2h0PSIyMCIgZmlsbD0iIzkzOTM5MyIvPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iMjQ1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iMzcwIj5saWNlbnNlPC90ZXh0Pjx0ZXh0IHg9IjI0NSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSIzNzAiPmxpY2Vuc2U8L3RleHQ+PC9nPjx0ZXh0IHg9IjI0NSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSIzNzAiPmxpY2Vuc2U8L3RleHQ+PC9nPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iNzA1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iMzkwIj5wcml2YXRlPC90ZXh0Pjx0ZXh0IHg9IjcwNSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSIzOTAiPnByaXZhdGU8L3RleHQ+PC9nPjx0ZXh0IHg9IjcwNSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSIzOTAiPnByaXZhdGU8L3RleHQ+PC9nPjwvZz48L3N2Zz4=" alt="License"></div>
-    <p class="lead">Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.</p>
-    <div class="header-sub">
-      <div class="stage-line"><span class="stage">Stage 1 — analyze</span> Scans a video directory, detects scene changes, and writes <code>config.json</code> with auto-detected start/end timestamps for each band.</div>
-      <div class="stage-line"><span class="stage">Stage 2 — process</span> Reads <code>config.json</code>, cuts each segment, generates a title card, and concatenates them into finished output files.</div>
-    </div>
-  </div>
+<div class="badges">
+  <span class="badge b-blue"><span class="badge-label">python</span> 3.10+</span>
+  <span class="badge b-dkgreen"><span class="badge-label">ffmpeg</span> required</span>
+  <span class="badge b-docker"><span class="badge-label">docker | podman</span> supported</span>
+  <span class="badge b-green"><span class="badge-label">tests</span> 28 passing</span>
+  <span class="badge b-orange"><span class="badge-label">CI</span> tests passing</span>
+  <span class="badge b-grey"><span class="badge-label">license</span> private</span>
+</div>
 
-  <h2>Prerequisites</h2>
-  <ul>
-    <li>Docker or Podman</li>
-    <li><code>make</code></li>
-  </ul>
-  <p>The container bundles ffmpeg and ffprobe — no local install needed.</p>
+<p class="intro">Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.</p>
+<p class="stage"><strong>Stage 1 — <code>analyze</code></strong>: scans a video directory, detects scene changes, and writes <code>config.json</code> with auto-detected start/end timestamps for each band.</p>
+<p class="stage"><strong>Stage 2 — <code>process</code></strong>: reads <code>config.json</code>, cuts each segment, generates a title card, and concatenates them into finished output files.</p>
 
-  <h2>Workflow</h2>
-  <pre><code># 1. Build the image (once)
+<!-- Prerequisites -->
+<h2>Prerequisites</h2>
+<ul>
+  <li>Docker or Podman</li>
+  <li><code>make</code></li>
+</ul>
+<p>The container bundles ffmpeg and ffprobe — no local install needed.</p>
+
+<!-- Workflow -->
+<h2>Workflow</h2>
+<pre><code><span class="cm"># 1. Build the image (once)</span>
 make build
 
-# 2. Analyze videos — writes config.json into VIDEO_DIR
+<span class="cm"># 2. Analyze videos — writes config.json</span>
 make analyze VIDEO_DIR=/path/to/videos
 
-# 3. Edit config.json — fix names, timestamps, remove _review flags
+<span class="cm"># 3. Edit config.json — fix names, timestamps, remove _review flags</span>
 
-# 4. Preview what will be cut (no video written)
+<span class="cm"># 4. Preview what will be cut (no video written)</span>
 make dry-run VIDEO_DIR=/path/to/videos
 
-# 5. Process — cuts segments and renders title cards
+<span class="cm"># 5. Process — cuts segments and renders title cards</span>
 make process VIDEO_DIR=/path/to/videos</code></pre>
 
-  <h2>Examples</h2>
-  <pre><code># Build image
+<!-- Examples -->
+<h2>Examples</h2>
+<pre><code><span class="cm"># Build image</span>
 make build
 
-# Analyze — writes config.json into VIDEO_DIR
+<span class="cm"># Analyze — writes config.json into VIDEO_DIR</span>
 make analyze VIDEO_DIR=/Volumes/data/media/wgi/2026
 
-# More sensitive scene detection
+<span class="cm"># Analyze with higher sensitivity (more cuts detected)</span>
 make analyze VIDEO_DIR=/Volumes/data/media/wgi/2026 THRESHOLD=0.25
 
-# Preview the cut plan without touching video
+<span class="cm"># Preview the cut plan without touching video</span>
 make dry-run VIDEO_DIR=/Volumes/data/media/wgi/2026
 
-# Process all bands
+<span class="cm"># Process all bands</span>
 make process VIDEO_DIR=/Volumes/data/media/wgi/2026
 
-# Process one band (substring match, case-insensitive)
+<span class="cm"># Process only one band (substring match, case-insensitive)</span>
 make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY=buckhorn
 
-# Process multiple bands
-make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY="rcc,matrix"
+<span class="cm"># Process multiple bands</span>
+make process VIDEO_DIR=/Volumes/data/media/wgi/2026 ONLY=<span class="st">"rcc,matrix"</span>
 
-# Resume interrupted run — skip bands whose output already exists
+<span class="cm"># Resume an interrupted run — skip bands whose output file already exists</span>
 make process VIDEO_DIR=/Volumes/data/media/wgi/2026 SKIP_EXISTING=1
 
-# Deploy scripts to remote host and rebuild image there
+<span class="cm"># Deploy scripts to remote host and rebuild image there</span>
 make deploy REMOTE=little-willow
 
-# Interactive shell inside container
+<span class="cm"># Drop into shell inside container (useful for debugging ffmpeg commands)</span>
 make shell VIDEO_DIR=/Volumes/data/media/wgi/2026
 
-# Remove output files, keep config
+<span class="cm"># Remove output files, keep config</span>
 make clean VIDEO_DIR=/Volumes/data/media/wgi/2026
 
-# Remove output files AND config.json
+<span class="cm"># Remove output files AND config.json — full reset</span>
 make clean-all VIDEO_DIR=/Volumes/data/media/wgi/2026</code></pre>
 
-  <p>Export <code>VIDEO_DIR</code> to skip repeating it:</p>
-  <pre><code>export VIDEO_DIR=/Volumes/data/media/wgi/2026
+<p>Export <code>VIDEO_DIR</code> to skip repeating it:</p>
+<pre><code>export VIDEO_DIR=/Volumes/data/media/wgi/2026
 make analyze
 make dry-run
 make process ONLY=buckhorn</code></pre>
 
-  <h2>Targets</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Target</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>build</code></td><td>Build the container image</td></tr>
-        <tr><td><code>analyze</code></td><td>Scan videos and write <code>config.json</code></td></tr>
-        <tr><td><code>process</code></td><td>Cut segments and render title cards</td></tr>
-        <tr><td><code>dry-run</code></td><td>Show plan without touching video</td></tr>
-        <tr><td><code>shell</code></td><td>Interactive shell inside the container</td></tr>
-        <tr><td><code>deploy</code></td><td>Rsync scripts to <code>little-willow</code> and rebuild</td></tr>
-        <tr><td><code>clean</code></td><td>Remove <code>output/</code> directory</td></tr>
-        <tr><td><code>clean-all</code></td><td>Remove <code>output/</code> and <code>config.json</code></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><code>VIDEO_DIR</code> is required for all targets except <code>build</code> and <code>deploy</code>.</p>
+<!-- Targets -->
+<h2>Targets</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Target</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>build</code></td><td>Build the container image</td></tr>
+    <tr><td><code>analyze</code></td><td>Scan videos and write <code>config.json</code></td></tr>
+    <tr><td><code>process</code></td><td>Cut segments and render title cards</td></tr>
+    <tr><td><code>dry-run</code></td><td>Show plan without touching video</td></tr>
+    <tr><td><code>shell</code></td><td>Interactive shell inside the container</td></tr>
+    <tr><td><code>deploy</code></td><td>Rsync scripts to <code>little-willow</code> and rebuild</td></tr>
+    <tr><td><code>clean</code></td><td>Remove <code>output/</code> directory</td></tr>
+    <tr><td><code>clean-all</code></td><td>Remove <code>output/</code> and <code>config.json</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p><code>VIDEO_DIR</code> is required for all targets except <code>build</code> and <code>deploy</code>.</p>
 
-  <h2>Optional variables</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>THRESHOLD</code></td><td><code>0.35</code></td><td>Scene detection sensitivity (lower = more cuts)</td></tr>
-        <tr><td><code>MIN_GAP</code></td><td><code>90</code></td><td>Minimum quiet seconds between performances</td></tr>
-        <tr><td><code>ONLY</code></td><td>—</td><td>Process only bands whose name contains this string</td></tr>
-<tr><td><code>SKIP_EXISTING</code></td><td>—</td><td>Set to any value to skip bands whose output file already exists (resume interrupted runs)</td></tr>
-        <tr><td><code>REMOTE</code></td><td><code>little-willow</code></td><td>Deploy target host</td></tr>
-        <tr><td><code>REMOTE_DIR</code></td><td><code>~/wgi-video-sync</code></td><td>Deploy path on remote</td></tr>
-        <tr><td><code>RUNTIME</code></td><td>auto</td><td><code>podman</code> or <code>docker</code> (detected automatically)</td></tr>
-      </tbody>
-    </table>
-  </div>
+<!-- Optional variables -->
+<h2>Optional variables</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>THRESHOLD</code></td><td><code>0.35</code></td><td>Scene detection sensitivity (lower = more cuts)</td></tr>
+    <tr><td><code>MIN_GAP</code></td><td><code>90</code></td><td>Minimum quiet seconds between performances</td></tr>
+    <tr><td><code>ONLY</code></td><td>—</td><td>Process only bands whose name contains this string</td></tr>
+    <tr><td><code>SKIP_EXISTING</code></td><td>—</td><td>Set to any value to skip bands whose output file already exists (resume interrupted runs)</td></tr>
+    <tr><td><code>REMOTE</code></td><td><code>little-willow</code></td><td>Deploy target host</td></tr>
+    <tr><td><code>REMOTE_DIR</code></td><td><code>~/wgi-video-sync</code></td><td>Deploy path on remote</td></tr>
+    <tr><td><code>RUNTIME</code></td><td>auto</td><td><code>podman</code> or <code>docker</code> (detected automatically)</td></tr>
+  </tbody>
+</table>
+</div>
 
-  <h2>config.json</h2>
-  <p><code>analyze</code> writes a draft. Edit it before running <code>process</code>.</p>
-  <pre><code>{
-  "input_dir": "/videos",
-  "output_dir": "/videos/output",
-  "event": "WGI World Championships, Dayton, OH",
-  "title_duration_seconds": 4,
-  "title_font_size": 72,
-  "title_font_color": "white",
-  "title_background_color": "black",
-  "fade_duration_seconds": 1.0,
-  "bands": [
+<!-- config.json -->
+<h2>config.json</h2>
+<p><code>analyze</code> writes a draft. Edit it before running <code>process</code>.</p>
+<pre><code>{
+  <span class="st">"input_dir"</span>: <span class="st">"/videos"</span>,
+  <span class="st">"output_dir"</span>: <span class="st">"/videos/output"</span>,
+  <span class="st">"event"</span>: <span class="st">"WGI World Championships, Dayton, OH"</span>,
+  <span class="st">"title_duration_seconds"</span>: 4,
+  <span class="st">"title_font_size"</span>: 72,
+  <span class="st">"title_font_color"</span>: <span class="st">"white"</span>,
+  <span class="st">"title_background_color"</span>: <span class="st">"black"</span>,
+  <span class="st">"fade_duration_seconds"</span>: 1.0,
+  <span class="st">"bands"</span>: [
     {
-      "name": "Band Name",
-      "location": "City, ST",
-      "date": "April 18, 2026",
-      "source_file": "01_filename.mp4",
-      "start": "00:00:27.000",
-      "end": "00:06:35.211",
-      "output": "band_name.mp4"
+      <span class="st">"name"</span>: <span class="st">"Band Name"</span>,
+      <span class="st">"location"</span>: <span class="st">"City, ST"</span>,
+      <span class="st">"date"</span>: <span class="st">"April 18, 2026"</span>,
+      <span class="st">"source_file"</span>: <span class="st">"01_filename.mp4"</span>,
+      <span class="st">"start"</span>: <span class="st">"00:00:27.000"</span>,
+      <span class="st">"end"</span>: <span class="st">"00:06:35.211"</span>,
+      <span class="st">"output"</span>: <span class="st">"band_name.mp4"</span>
     }
   ]
 }</code></pre>
 
-  <h3>Top-level fields</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>input_dir</code></td><td>string</td><td><code>/videos</code></td><td>Container path where source files are mounted. Do not change unless you alter the Makefile mount.</td></tr>
-        <tr><td><code>output_dir</code></td><td>string</td><td><code>/videos/output</code></td><td>Container path for rendered output. Created automatically.</td></tr>
-        <tr><td><code>event</code></td><td>string</td><td>—</td><td>Event name shown on every title card (subtitle line 3).</td></tr>
-        <tr><td><code>title_duration_seconds</code></td><td>int</td><td><code>4</code></td><td>How long the title card is displayed before the performance begins.</td></tr>
-        <tr><td><code>title_font_size</code></td><td>int</td><td><code>72</code></td><td>Title card band-name font size in points.</td></tr>
-        <tr><td><code>title_font_color</code></td><td>string</td><td><code>"white"</code></td><td>Any ffmpeg color name or <code>#RRGGBB</code>.</td></tr>
-        <tr><td><code>title_background_color</code></td><td>string</td><td><code>"black"</code></td><td>Title card background color.</td></tr>
-        <tr><td><code>fade_duration_seconds</code></td><td>float</td><td><code>1.0</code></td><td>Fade-in/fade-out duration applied to the title card and first segment frame.</td></tr>
-        <tr><td><code>bands</code></td><td>array</td><td>—</td><td>Ordered list of band entries. Output files are prefixed with their 1-based position (<code>01_</code>, <code>02_</code>, …).</td></tr>
-        <tr><td><code>_note</code></td><td>string</td><td>—</td><td>Ignored by <code>process</code>. Human-readable reminder; remove when done editing.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Band entry fields</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>name</code></td><td>string</td><td><span class="req">yes</span></td><td>Band name — rendered large on the title card.</td></tr>
-        <tr><td><code>location</code></td><td>string</td><td><span class="opt">no</span></td><td>City/state — title card subtitle line 1.</td></tr>
-        <tr><td><code>date</code></td><td>string</td><td><span class="opt">no</span></td><td>Performance date — title card subtitle line 2 (e.g. <code>"April 18, 2026"</code>).</td></tr>
-        <tr><td><code>source_file</code></td><td>string</td><td><span class="req">yes*</span></td><td>Filename relative to <code>input_dir</code>. Omit when using <code>segments</code>.</td></tr>
-        <tr><td><code>start</code></td><td>string</td><td><span class="req">yes*</span></td><td>Segment start timestamp <code>HH:MM:SS.mmm</code>. Omit when using <code>segments</code>.</td></tr>
-        <tr><td><code>end</code></td><td>string</td><td><span class="req">yes*</span></td><td>Segment end timestamp <code>HH:MM:SS.mmm</code>, or <code>"END"</code> for file end. Omit when using <code>segments</code>.</td></tr>
-        <tr><td><code>segments</code></td><td>array</td><td><span class="req">yes*</span></td><td>Use instead of <code>source_file</code>/<code>start</code>/<code>end</code> when performance spans multiple files. Each element: <code>source_file</code>, <code>start</code>, <code>end</code>.</td></tr>
-        <tr><td><code>output</code></td><td>string</td><td><span class="req">yes</span></td><td>Output filename relative to <code>output_dir</code>. Convention: <code>snake_case_name.mp4</code>. <code>process</code> prepends a zero-padded index.</td></tr>
-        <tr><td><code>_review</code></td><td>string</td><td><span class="opt">no</span></td><td>Printed as <code>WARNING</code> during <code>process</code>. Remove when timestamps are confirmed.</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="note">* <code>source_file</code>+<code>start</code>+<code>end</code> and <code>segments</code> are mutually exclusive — exactly one must be present.</p>
-
-  <h3>Multi-segment entries</h3>
-  <p>For bands whose performance spans multiple source files:</p>
-  <pre><code>{
-  "name": "Jordan HS",
-  "location": "Fulshear, TX",
-  "date": "April 18, 2026",
-  "segments": [
-    { "source_file": "02_file.mp4", "start": "00:35:30.000", "end": "00:39:10.404" },
-    { "source_file": "03_file.mp4", "start": "00:00:00.000", "end": "00:04:00.000" }
-  ],
-  "output": "jordan_hs.mp4"
-}</code></pre>
-  <p>Segments are concatenated in order. Fade-in applies to the first segment only; subsequent joins are seamless cuts.</p>
-
-  <h3>Video file naming</h3>
-  <p><code>analyze</code> parses double-underscore (<code>__</code>) as the band separator and requires a numeric prefix:</p>
-  <pre><code>01_band_name_WGI.mp4           → one band
-02_band_a__band_b_WGI.mp4     → two bands; suggests a split point</code></pre>
-  <p>Files without a numeric prefix are skipped — add them manually to <code>config.json</code> if needed.</p>
-
-  <h2>Broken timestamp sources</h2>
-  <p>FloMarching and similar live-capture sources sometimes have broken PTS or frame-rate metadata. <code>process</code> detects this automatically and re-encodes to a clean CFR file before seeking, so segments land at correct timestamps.</p>
-
-  <h2>Config.json ownership</h2>
-  <p><code>analyze</code> writes <code>config.json</code> into <code>VIDEO_DIR</code> (the container's <code>/videos</code> working dir). That file is a starting draft. The <strong>project-dir copy</strong> (<code>./config.json</code>) is what <code>process</code> actually uses: the Makefile mounts it read-only into the container at <code>/config.json</code>, independent of whatever is in <code>VIDEO_DIR</code>.</p>
-  <ol>
-    <li><code>make analyze</code> drops a draft into <code>VIDEO_DIR/config.json</code> with <code>input_dir: /videos</code>, blank <code>location</code>/<code>date</code>/<code>event</code> placeholders, and <code>_review</code> flags on auto-detected cuts</li>
-    <li>Copy and refine it as <code>./config.json</code> in this project dir (add <code>location</code>, <code>date</code>, <code>event</code>, fix timestamps, build multi-segment entries)</li>
-    <li><code>make process</code> reads <code>./config.json</code>; the copy in <code>VIDEO_DIR</code> is no longer used</li>
-  </ol>
-  <p>Keep the project-dir <code>config.json</code> as the source of truth.</p>
-
-  <h3>2026 WGI Dayton run</h3>
-  <p>Source videos: <code>/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion/</code><br>
-  Output: <code>…/output/</code> — 26 numbered clips, <code>01_central_lafourche_hs.mp4</code> through <code>26_perc_world_champion_awards.mp4</code></p>
-  <pre><code>make build
-make analyze VIDEO_DIR=/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion
-# refined config saved as ./config.json in this project dir
-make process VIDEO_DIR=/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion</code></pre>
-  <p>The <code>config.json</code> in the source video dir is the older analyze draft. The authoritative cut config is <code>./config.json</code> in this repo.</p>
-
-  <h3>Output files</h3>
-  <p>Event: WGI World Championships, Dayton, OH — April 18, 2026</p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>#</th><th>File</th><th>Band</th><th>Location</th></tr></thead>
-      <tbody>
-        <tr><td>01</td><td><code>01_central_lafourche_hs.mp4</code></td><td>Central Lafourche HS</td><td>Raceland, LA</td></tr>
-        <tr><td>02</td><td><code>02_franklin_community_hs.mp4</code></td><td>Franklin Community HS</td><td>Franklin, IN</td></tr>
-        <tr><td>03</td><td><code>03_greenfield_central_hs.mp4</code></td><td>Greenfield-Central HS</td><td>Greenfield, IN</td></tr>
-        <tr><td>04</td><td><code>04_auburn_hs.mp4</code></td><td>Auburn HS</td><td>Auburn, AL</td></tr>
-        <tr><td>05</td><td><code>05_jordan_hs.mp4</code></td><td>Jordan HS</td><td>Fulshear, TX</td></tr>
-        <tr><td>06</td><td><code>06_beavercreek_hs.mp4</code></td><td>Beavercreek HS</td><td>Beavercreek, OH</td></tr>
-        <tr><td>07</td><td><code>07_pace_hs.mp4</code></td><td>Pace HS</td><td>Pace, FL</td></tr>
-        <tr><td>08</td><td><code>08_victor_j_andrew_hs.mp4</code></td><td>Victor J Andrew HS</td><td>Tinley Park, IL</td></tr>
-        <tr><td>09</td><td><code>09_sonia_sotomayor_hs.mp4</code></td><td>Sonia Sotomayor HS</td><td>San Antonio, TX</td></tr>
-        <tr><td>10</td><td><code>10_sparkman_hs.mp4</code></td><td>Sparkman HS</td><td>Harvest, AL</td></tr>
-        <tr><td>11</td><td><code>11_buckhorn_percussion.mp4</code></td><td>Buckhorn Percussion</td><td>New Market, AL</td></tr>
-        <tr><td>12</td><td><code>12_paradigm_percussion.mp4</code></td><td>Paradigm Percussion</td><td>Iron Station, NC</td></tr>
-        <tr><td>13</td><td><code>13_infinity_2.mp4</code></td><td>Infinity 2</td><td>Orlando, FL</td></tr>
-        <tr><td>14</td><td><code>14_redline.mp4</code></td><td>Redline</td><td>Plymouth, MI</td></tr>
-        <tr><td>15</td><td><code>15_cap_city.mp4</code></td><td>Cap City</td><td>Columbus, OH</td></tr>
-        <tr><td>16</td><td><code>16_matrix.mp4</code></td><td>Matrix</td><td>Akron, OH</td></tr>
-        <tr><td>17</td><td><code>17_rhythmic_force_percussion.mp4</code></td><td>Rhythmic Force Percussion</td><td>Austin, TX</td></tr>
-        <tr><td>18</td><td><code>18_george_mason_university.mp4</code></td><td>George Mason University</td><td>Fairfax, VA</td></tr>
-        <tr><td>19</td><td><code>19_infinity.mp4</code></td><td>Infinity</td><td>Orlando, FL</td></tr>
-        <tr><td>20</td><td><code>20_music_city_mystique.mp4</code></td><td>Music City Mystique</td><td>Nashville, TN</td></tr>
-        <tr><td>21</td><td><code>21_broken_city.mp4</code></td><td>Broken City</td><td>Lake Elsinore, CA</td></tr>
-        <tr><td>22</td><td><code>22_pulse_percussion.mp4</code></td><td>Pulse Percussion</td><td>Ontario, CA</td></tr>
-        <tr><td>23</td><td><code>23_rcc.mp4</code></td><td>RCC</td><td>Riverside, CA</td></tr>
-        <tr><td>24</td><td><code>24_rhythm_x.mp4</code></td><td>Rhythm X</td><td>Indianapolis, IN</td></tr>
-        <tr><td>25</td><td><code>25_atlanta_quest.mp4</code></td><td>Atlanta Quest</td><td>Atlanta, GA</td></tr>
-        <tr><td>26</td><td><code>26_perc_world_champion_awards.mp4</code></td><td>Perc World Champion Awards</td><td>—</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="tips">
-    <h2>Testing</h2>
-<p>Unit tests cover pure functions in <code>analyze.py</code> and <code>process.py</code> — timestamp formatting, slugification, band name parsing, gap-based cut detection, fps parsing/snapping, timestamp-to-seconds conversion, and config schema validation.</p>
-<pre><code>uv venv &amp;&amp; uv pip install pytest
-uv run python -m pytest tests/ -v</code></pre>
-<p>28 tests, no ffmpeg required.</p>
-<h2>Tips</h2>
-    <ul>
-      <li>Export <code>VIDEO_DIR</code> to avoid repeating it: <code>export VIDEO_DIR=/path/to/videos</code></li>
-      <li>Use <code>ONLY=buckhorn</code> to reprocess a single band; comma-separate for multiple: <code>ONLY="rcc,matrix"</code></li>
-      <li><code>_review</code> flags are surfaced as warnings during <code>process</code> — remove them once timestamps are confirmed</li>
-      <li><code>pdfplumber</code> is optional: if installed, <code>analyze</code> extracts any schedule PDFs found alongside the videos</li>
-    </ul>
-  </div>
-
+<h3>Top-level fields</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>input_dir</code></td><td>string</td><td><code>/videos</code></td><td>Container path where source files are mounted. Do not change unless you alter the Makefile mount.</td></tr>
+    <tr><td><code>output_dir</code></td><td>string</td><td><code>/videos/output</code></td><td>Container path for rendered output files. Created automatically.</td></tr>
+    <tr><td><code>event</code></td><td>string</td><td>—</td><td>Event name shown on every title card (e.g. <code>"WGI World Championships, Dayton, OH"</code>).</td></tr>
+    <tr><td><code>title_duration_seconds</code></td><td>int</td><td><code>4</code></td><td>How long the title card is displayed before the performance begins.</td></tr>
+    <tr><td><code>title_font_size</code></td><td>int</td><td><code>72</code></td><td>Title card font size in points.</td></tr>
+    <tr><td><code>title_font_color</code></td><td>string</td><td><code>"white"</code></td><td>Title card text color — any CSS color name or hex value.</td></tr>
+    <tr><td><code>title_background_color</code></td><td>string</td><td><code>"black"</code></td><td>Title card background color.</td></tr>
+    <tr><td><code>fade_duration_seconds</code></td><td>float</td><td><code>1.0</code></td><td>Fade-in/fade-out duration at the start and end of each clip.</td></tr>
+    <tr><td><code>bands</code></td><td>array</td><td>—</td><td>Ordered list of band entries. Output files are prefixed with their 1-based position (<code>01_</code>, <code>02_</code>, …).</td></tr>
+  </tbody>
+</table>
 </div>
 
+<h3>Band entry fields</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>name</code></td><td>string</td><td>yes</td><td>Band name — appears on the title card.</td></tr>
+    <tr><td><code>location</code></td><td>string</td><td>no</td><td>City/state — appears on the title card beneath the name.</td></tr>
+    <tr><td><code>date</code></td><td>string</td><td>no</td><td>Performance date — appears on the title card (e.g. <code>"April 18, 2026"</code>).</td></tr>
+    <tr><td><code>source_file</code></td><td>string</td><td>yes*</td><td>Filename of the source video, relative to <code>input_dir</code>. Omit when using <code>segments</code>.</td></tr>
+    <tr><td><code>start</code></td><td>string</td><td>yes*</td><td>Timestamp to begin the cut (<code>HH:MM:SS.mmm</code>). Omit when using <code>segments</code>.</td></tr>
+    <tr><td><code>end</code></td><td>string</td><td>yes*</td><td>Timestamp to end the cut (<code>HH:MM:SS.mmm</code>). Omit when using <code>segments</code>.</td></tr>
+    <tr><td><code>segments</code></td><td>array</td><td>yes*</td><td>Use instead of <code>source_file</code>/<code>start</code>/<code>end</code> when the performance spans multiple source files. Each element has <code>source_file</code>, <code>start</code>, <code>end</code>.</td></tr>
+    <tr><td><code>number</code></td><td>int</td><td>no</td><td>Explicit output prefix number. Overrides the 1-based position in the <code>bands</code> array. Useful when archiving a subset of bands in a specific order.</td></tr>
+    <tr><td><code>output</code></td><td>string</td><td>yes</td><td>Output filename relative to <code>output_dir</code>. Convention: <code>snake_case_band_name.mp4</code>.</td></tr>
+    <tr><td><code>_review</code></td><td>string</td><td>no</td><td>Free-text note flagged as a warning during <code>process</code>. Remove when timestamps are confirmed.</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="footnote">* Either <code>source_file</code>+<code>start</code>+<code>end</code> or <code>segments</code> is required — not both.</p>
+
+<h3>Multi-segment entries</h3>
+<p>For bands whose performance spans multiple source files:</p>
+<pre><code>{
+  <span class="st">"name"</span>: <span class="st">"Jordan HS"</span>,
+  <span class="st">"location"</span>: <span class="st">"Fulshear, TX"</span>,
+  <span class="st">"date"</span>: <span class="st">"April 18, 2026"</span>,
+  <span class="st">"segments"</span>: [
+    { <span class="st">"source_file"</span>: <span class="st">"02_file.mp4"</span>, <span class="st">"start"</span>: <span class="st">"00:35:30.000"</span>, <span class="st">"end"</span>: <span class="st">"00:39:10.404"</span> },
+    { <span class="st">"source_file"</span>: <span class="st">"03_file.mp4"</span>, <span class="st">"start"</span>: <span class="st">"00:00:00.000"</span>, <span class="st">"end"</span>: <span class="st">"00:04:00.000"</span> }
+  ],
+  <span class="st">"output"</span>: <span class="st">"jordan_hs.mp4"</span>
+}</code></pre>
+<p>Segments are concatenated in order. Fade-in applies to the first segment only; subsequent joins are seamless cuts.</p>
+
+<h3>Video file naming</h3>
+<p><code>analyze</code> parses double-underscore (<code>__</code>) as the band separator and requires a numeric prefix:</p>
+<pre><code>01_band_name_WGI.mp4           → one band
+02_band_a__band_b_WGI.mp4     → two bands; suggests a split point</code></pre>
+<p>Files without a numeric prefix are skipped — add them manually to <code>config.json</code> if needed.</p>
+
+<!-- Broken timestamp sources -->
+<h2>Broken timestamp sources</h2>
+<p>FloMarching and similar live-capture sources sometimes have broken PTS or frame-rate metadata. <code>process</code> detects this automatically and re-encodes to a clean CFR file before seeking, so segments land at correct timestamps.</p>
+
+<!-- Config.json ownership -->
+<h2>Config.json ownership</h2>
+<p><code>analyze</code> writes <code>config.json</code> into <code>VIDEO_DIR</code> (the container's <code>/videos</code> working dir). That file is a starting draft — edit it freely. The <strong>project-dir copy</strong> (<code>./config.json</code>) is what <code>process</code> actually uses: the Makefile mounts it read-only into the container at <code>/config.json</code>, independent of whatever is in <code>VIDEO_DIR</code>.</p>
+
+<p>Typical lifecycle:</p>
+<ol>
+  <li><code>make analyze</code> drops a draft into <code>VIDEO_DIR/config.json</code> with <code>input_dir: /videos</code>, blank <code>location</code>/<code>date</code>/<code>event</code> placeholders, and <code>_review</code> flags on auto-detected cuts. If a schedule PDF is present alongside the videos, <code>analyze</code> extracts it and pre-fills <code>location</code>, <code>date</code>, and <code>event</code> fields where a match is found.</li>
+  <li>Fill in any remaining <code>event</code>, <code>location</code>, <code>date</code> fields; fix timestamps; build multi-segment entries for split performances; remove <code>_review</code> flags</li>
+  <li>Copy the refined file to <code>./config.json</code> in this project dir</li>
+  <li><code>make process</code> reads <code>./config.json</code>; the copy in <code>VIDEO_DIR</code> is no longer used</li>
+</ol>
+<p>Keep the project-dir <code>config.json</code> as the source of truth. The one in <code>VIDEO_DIR</code> is just the raw analyze output.</p>
+
+<h3>Config archiving</h3>
+<p>After each event, archive the final config before overwriting it:</p>
+<pre><code>cp config.json config.2026-dayton.json</code></pre>
+<p>Archived configs live alongside <code>config.json</code> in the project root. The naming convention is <code>config.&lt;year&gt;-&lt;city&gt;.json</code>. <code>config.example.json</code> is a minimal template documenting both entry formats.</p>
+
+<h3>2026 WGI Dayton run</h3>
+<p>Source videos: <code>/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion/</code><br>
+Output: <code>…/output/</code> (26 numbered clips, <code>01_central_lafourche_hs.mp4</code> through <code>26_perc_world_champion_awards.mp4</code>)</p>
+<pre><code>make build
+make analyze VIDEO_DIR=/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion
+<span class="cm"># refined config saved as ./config.json in this project dir</span>
+make process VIDEO_DIR=/Volumes/data/media/3.6T/data/dc_pics/paradigm_percussion_2026/2026-04-16_thru_19_WGI_dayton_ohio_paradigm_percussion</code></pre>
+<p>The <code>config.json</code> in the source video dir is the older analyze draft (simpler names, different timestamps). The authoritative cut config is <code>./config.json</code> in this repo.</p>
+<p><code>./config.json</code> aligns exactly with the 26 files in <code>output/</code> — same order, same count, same slugified names. Running <code>make process</code> with this config reproduces all 26 clips identically.</p>
+
+<h3>Output files</h3>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">Event: WGI World Championships, Dayton, OH — April 18, 2026</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>File</th><th>Band</th><th>Location</th></tr></thead>
+  <tbody>
+    <tr><td>01</td><td><code>01_central_lafourche_hs.mp4</code></td><td>Central Lafourche HS</td><td>Raceland, LA</td></tr>
+    <tr><td>02</td><td><code>02_franklin_community_hs.mp4</code></td><td>Franklin Community HS</td><td>Franklin, IN</td></tr>
+    <tr><td>03</td><td><code>03_greenfield_central_hs.mp4</code></td><td>Greenfield-Central HS</td><td>Greenfield, IN</td></tr>
+    <tr><td>04</td><td><code>04_auburn_hs.mp4</code></td><td>Auburn HS</td><td>Auburn, AL</td></tr>
+    <tr><td>05</td><td><code>05_jordan_hs.mp4</code></td><td>Jordan HS</td><td>Fulshear, TX</td></tr>
+    <tr><td>06</td><td><code>06_beavercreek_hs.mp4</code></td><td>Beavercreek HS</td><td>Beavercreek, OH</td></tr>
+    <tr><td>07</td><td><code>07_pace_hs.mp4</code></td><td>Pace HS</td><td>Pace, FL</td></tr>
+    <tr><td>08</td><td><code>08_victor_j_andrew_hs.mp4</code></td><td>Victor J Andrew HS</td><td>Tinley Park, IL</td></tr>
+    <tr><td>09</td><td><code>09_sonia_sotomayor_hs.mp4</code></td><td>Sonia Sotomayor HS</td><td>San Antonio, TX</td></tr>
+    <tr><td>10</td><td><code>10_sparkman_hs.mp4</code></td><td>Sparkman HS</td><td>Harvest, AL</td></tr>
+    <tr><td>11</td><td><code>11_buckhorn_percussion.mp4</code></td><td>Buckhorn Percussion</td><td>New Market, AL</td></tr>
+    <tr><td>12</td><td><code>12_paradigm_percussion.mp4</code></td><td>Paradigm Percussion</td><td>Iron Station, NC</td></tr>
+    <tr><td>13</td><td><code>13_infinity_2.mp4</code></td><td>Infinity 2</td><td>Orlando, FL</td></tr>
+    <tr><td>14</td><td><code>14_redline.mp4</code></td><td>Redline</td><td>Plymouth, MI</td></tr>
+    <tr><td>15</td><td><code>15_cap_city.mp4</code></td><td>Cap City</td><td>Columbus, OH</td></tr>
+    <tr><td>16</td><td><code>16_matrix.mp4</code></td><td>Matrix</td><td>Akron, OH</td></tr>
+    <tr><td>17</td><td><code>17_rhythmic_force_percussion.mp4</code></td><td>Rhythmic Force Percussion</td><td>Austin, TX</td></tr>
+    <tr><td>18</td><td><code>18_george_mason_university.mp4</code></td><td>George Mason University</td><td>Fairfax, VA</td></tr>
+    <tr><td>19</td><td><code>19_infinity.mp4</code></td><td>Infinity</td><td>Orlando, FL</td></tr>
+    <tr><td>20</td><td><code>20_music_city_mystique.mp4</code></td><td>Music City Mystique</td><td>Nashville, TN</td></tr>
+    <tr><td>21</td><td><code>21_broken_city.mp4</code></td><td>Broken City</td><td>Lake Elsinore, CA</td></tr>
+    <tr><td>22</td><td><code>22_pulse_percussion.mp4</code></td><td>Pulse Percussion</td><td>Ontario, CA</td></tr>
+    <tr><td>23</td><td><code>23_rcc.mp4</code></td><td>RCC</td><td>Riverside, CA</td></tr>
+    <tr><td>24</td><td><code>24_rhythm_x.mp4</code></td><td>Rhythm X</td><td>Indianapolis, IN</td></tr>
+    <tr><td>25</td><td><code>25_atlanta_quest.mp4</code></td><td>Atlanta Quest</td><td>Atlanta, GA</td></tr>
+    <tr><td>26</td><td><code>26_perc_world_champion_awards.mp4</code></td><td>Perc World Champion Awards</td><td>—</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- Testing -->
+<h2>Testing</h2>
+<p>Unit tests cover pure functions in <code>analyze.py</code> and <code>process.py</code> — timestamp formatting, slugification, band name parsing, gap-based cut detection, fps parsing/snapping, timestamp-to-seconds conversion, and config schema validation.</p>
+<pre><code>uv venv && uv pip install pytest
+uv run python -m pytest tests/ -v</code></pre>
+<p>28 tests, no ffmpeg required.</p>
+
+<!-- Tips -->
+<h2>Tips</h2>
+<ul>
+  <li>Export <code>VIDEO_DIR</code> to avoid repeating it: <code>export VIDEO_DIR=/path/to/videos</code></li>
+  <li>Use <code>ONLY=buckhorn</code> (or <code>--only "buckhorn"</code>) to reprocess a single band</li>
+  <li><code>_review</code> flags are surfaced as warnings during <code>process</code> — remove them once timestamps are confirmed</li>
+  <li><code>pdfplumber</code> is optional: if installed (<code>pip install pdfplumber</code>), <code>analyze</code> extracts any schedule PDFs found alongside the videos and pre-fills band location, date, and event fields where a match is found</li>
+</ul>
+
+</div>
 </body>
 </html>

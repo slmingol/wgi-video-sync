@@ -20,11 +20,17 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
 def run(cmd):
     return subprocess.run(cmd, capture_output=True, text=True)
+
+
+def _fmt_dur(secs):
+    m, s = divmod(int(secs), 60)
+    return f'{m}m{s:02d}s' if m else f'{s}s'
 
 
 # ANSI colors -- disabled when not writing to a terminal or NO_COLOR is set
@@ -433,7 +439,8 @@ def main():
 
     def with_prefix(i, band):
         b = dict(band)
-        b['output'] = f'{(i + 1):0{idx_width}d}_{band["output"]}'
+        num = int(band['number']) if 'number' in band else i + 1
+        b['output'] = f'{num:0{idx_width}d}_{band["output"]}'
         return b
 
     bands = [with_prefix(i, b) for i, b in enumerate(all_bands)]
@@ -468,6 +475,7 @@ def main():
     print(f'{C.DIM}Font: {font_path or "ffmpeg built-in (no font file found)"}{C.RESET}')
 
     ok, failed = 0, []
+    band_times = []
     try:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_dir = Path(tmp)
@@ -479,7 +487,17 @@ def main():
                     continue
                 if band.get('_review'):
                     print(f'  {C.YELLOW}WARNING: {band["_review"]}{C.RESET}')
-                if process_band(band, config, output_dir, tmp_dir, font_path):
+                t0 = time.monotonic()
+                success = process_band(band, config, output_dir, tmp_dir, font_path)
+                elapsed = time.monotonic() - t0
+                band_times.append(elapsed)
+                remaining = len(bands) - i
+                if remaining > 0:
+                    avg = sum(band_times) / len(band_times)
+                    print(f'  {C.DIM}took {_fmt_dur(elapsed)}  ETA ~{_fmt_dur(avg * remaining)} ({remaining} left){C.RESET}')
+                else:
+                    print(f'  {C.DIM}took {_fmt_dur(elapsed)}{C.RESET}')
+                if success:
                     ok += 1
                 else:
                     failed.append(band['name'])
