@@ -22,7 +22,7 @@ RESET  := \033[0m
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build analyze process dry-run shell clean clean-all guard deploy
+.PHONY: help build pull analyze process dry-run shell clean clean-all guard deploy
 
 help:
 	@printf '$(BOLD)WGI Video Sync$(RESET)\n'
@@ -32,6 +32,7 @@ help:
 	@printf '\n'
 	@printf '$(BOLD)Targets:$(RESET)\n'
 	@printf '  $(CYAN)build$(RESET)      Build the Docker image\n'
+	@printf '  $(CYAN)pull$(RESET)       Pull image from GHCR via docker-compose.yaml\n'
 	@printf '  $(CYAN)analyze$(RESET)    Scan videos and write config.json $(DIM)(run first)$(RESET)\n'
 	@printf '  $(CYAN)process$(RESET)    Cut segments and render title cards\n'
 	@printf '  $(CYAN)dry-run$(RESET)    Show what process would do without touching video\n'
@@ -60,6 +61,11 @@ build:
 	@printf '$(CYAN)Building image $(BOLD)$(IMAGE)$(RESET) $(DIM)(runtime: $(RUNTIME))$(RESET)\n'
 	@$(RUNTIME) build -q -t $(IMAGE) . > /dev/null
 	@printf '$(GREEN)Image built: $(BOLD)$(IMAGE)$(RESET)\n'
+
+pull:
+	@printf '$(CYAN)Pulling image via compose$(RESET)\n'
+	@$(RUNTIME) compose pull
+	@printf '$(GREEN)Done$(RESET)\n'
 
 analyze: guard
 	@printf '$(CYAN)Analyzing$(RESET) $(BOLD)$(VIDEO_DIR)$(RESET)\n'
