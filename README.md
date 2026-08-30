@@ -8,7 +8,7 @@
 ![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white)
 ![License](https://img.shields.io/badge/license-private-lightgrey)
 
-**[Styled docs](docs/index.html)**
+**[Styled docs](https://slmingol.github.io/wgi-video-sync/)**
 
 Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.
 
