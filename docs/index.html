@@ -75,27 +75,8 @@ body {
 .logo-wrap svg { max-width: 100%; height: auto; border-radius: 6px; display: block; }
 
 /* ── Badges ── */
-.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--pill-text);
-  white-space: nowrap;
-}
-.badge-label {
-  opacity: 0.8;
-  font-weight: 400;
-}
-.b-blue      { background: #1f6feb; }
-.b-dkgreen   { background: #1a7340; }
-.b-docker    { background: #2496ED; }
-.b-green     { background: #1a8c3a; }
-.b-orange    { background: #d97b00; }
-.b-grey      { background: #6a6a6a; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; align-items: center; }
+.badges img { height: 20px; }
 
 /* ── Headings ── */
 h1 {
@@ -437,12 +418,13 @@ td:first-child { font-variant-numeric: tabular-nums; font-weight: 700; color: va
 <h1>wgi-video-sync</h1>
 
 <div class="badges">
-  <span class="badge b-blue"><span class="badge-label">python</span> 3.10+</span>
-  <span class="badge b-dkgreen"><span class="badge-label">ffmpeg</span> required</span>
-  <span class="badge b-docker"><span class="badge-label">docker | podman</span> supported</span>
-  <span class="badge b-green"><span class="badge-label">tests</span> 28 passing</span>
-  <span class="badge b-orange"><span class="badge-label">CI</span> tests passing</span>
-  <span class="badge b-grey"><span class="badge-label">license</span> MIT</span>
+  <img src="https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/ffmpeg-required-darkgreen?logo=ffmpeg&logoColor=white" alt="ffmpeg">
+  <img src="https://img.shields.io/badge/docker%20%7C%20podman-supported-2496ED?logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white" alt="Tests">
+  <img src="https://github.com/slmingol/wgi-video-sync/actions/workflows/test.yml/badge.svg" alt="CI">
+  <img src="https://img.shields.io/badge/ghcr.io-latest-blue?logo=docker&logoColor=white" alt="GHCR">
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License">
 </div>
 
 <p class="intro">Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.</p>

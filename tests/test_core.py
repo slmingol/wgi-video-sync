@@ -157,3 +157,52 @@ class TestValidateConfig:
         cfg['bands'][0]['segments'] = [{'source_file': 'f.mp4', 'start': '00:00:00'}]
         with pytest.raises(SystemExit):
             process.validate_config(cfg, 'config.json')
+
+
+class TestParseSchedule:
+    def _write(self, tmp_path, text):
+        p = tmp_path / 'schedule.txt'
+        p.write_text(text, encoding='utf-8')
+        return [p]
+
+    def test_empty(self):
+        result = analyze.parse_schedule([])
+        assert result == {'event': '', 'date': '', 'bands': []}
+
+    def test_event_extraction(self, tmp_path):
+        files = self._write(tmp_path, 'WGI Percussion World Championships\nSome other line\n')
+        result = analyze.parse_schedule(files)
+        assert result['event'] == 'WGI Percussion World Championships'
+
+    def test_date_extraction(self, tmp_path):
+        files = self._write(tmp_path, 'Semifinals\nApril 18, 2026\nMore text\n')
+        result = analyze.parse_schedule(files)
+        assert result['date'] == 'April 18, 2026'
+
+    def test_band_row(self, tmp_path):
+        files = self._write(tmp_path, '2:30 PM   Buckhorn Percussion   New Market, AL\n')
+        result = analyze.parse_schedule(files)
+        assert len(result['bands']) == 1
+        assert result['bands'][0]['name'] == 'Buckhorn Percussion'
+        assert result['bands'][0]['location'] == 'New Market, AL'
+
+    def test_no_match_returns_empty_band_list(self, tmp_path):
+        files = self._write(tmp_path, 'No schedule rows here\nJust plain text\n')
+        result = analyze.parse_schedule(files)
+        assert result['bands'] == []
+
+
+class TestScheduleLookup:
+    def _bands(self):
+        return [{'name': 'Buckhorn Percussion', 'location': 'New Market, AL', 'date': 'April 18'}]
+
+    def test_exact_substring(self):
+        result = analyze._schedule_lookup('buckhorn', self._bands())
+        assert result['name'] == 'Buckhorn Percussion'
+
+    def test_no_match(self):
+        assert analyze._schedule_lookup('xyz', self._bands()) == {}
+
+    def test_case_insensitive(self):
+        result = analyze._schedule_lookup('BUCKHORN', self._bands())
+        assert result['location'] == 'New Market, AL'

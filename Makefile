@@ -44,6 +44,7 @@ help:
 	@printf '  $(YELLOW)THRESHOLD$(RESET)=0.3              Scene sensitivity for analyze $(DIM)(default 0.35)$(RESET)\n'
 	@printf '  $(YELLOW)MIN_GAP$(RESET)=120                Min quiet seconds between performances $(DIM)(default 90)$(RESET)\n'
 	@printf '  $(YELLOW)ONLY$(RESET)="buckhorn"            Process only matching band name\n'
+	@printf '  $(YELLOW)SKIP_EXISTING$(RESET)=1            Skip bands whose output already exists\n'
 	@printf '  $(YELLOW)REMOTE$(RESET)=little-willow       Deploy host $(DIM)(default: little-willow)$(RESET)\n'
 	@printf '  $(YELLOW)REMOTE_DIR$(RESET)=~/wgi-video-sync  Deploy path $(DIM)(default: ~/wgi-video-sync)$(RESET)\n'
 	@printf '  $(YELLOW)RUNTIME$(RESET)=podman             Container runtime $(DIM)(default: docker)$(RESET)\n'
