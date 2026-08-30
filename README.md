@@ -8,6 +8,8 @@
 ![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen?logo=pytest&logoColor=white)
 ![License](https://img.shields.io/badge/license-private-lightgrey)
 
+**[Styled docs](https://claude.ai/code/artifact/5e4a6152-c6f2-47ad-af7d-8f249111668b)**
+
 Two-stage pipeline for cutting WGI competition recordings into per-band clips with title cards.
 
 **Stage 1 — `analyze`**: scans a video directory, detects scene changes, and writes `config.json` with auto-detected start/end timestamps for each band.  
